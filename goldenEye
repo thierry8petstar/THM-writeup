@@ -1,1 +1,53 @@
+GOLDENEYE CTF
+
+1st task---------------------------------Intro & Enumeration--------------------------------
+
+we begin with nmap command : 
+nmap -sC -sV -T4 -p- 10.10.84.54
+
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2023-11-29 19:25 EST
+Stats: 0:14:42 elapsed; 0 hosts completed (1 up), 1 undergoing SYN Stealth Scan
+SYN Stealth Scan Timing: About 94.30% done; ETC: 19:41 (0:00:53 remaining)
+Nmap scan report for 10.10.84.54
+Host is up (0.21s latency).
+Not shown: 65531 closed tcp ports (reset)
+PORT      STATE SERVICE  VERSION
+25/tcp    open  smtp     Postfix smtpd
+| ssl-cert: Subject: commonName=ubuntu
+| Not valid before: 2018-04-24T03:22:34
+|_Not valid after:  2028-04-21T03:22:34
+|_smtp-commands: ubuntu, PIPELINING, SIZE 10240000, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, 8BITMIME, DSN
+|_ssl-date: TLS randomness does not represent time
+80/tcp    open  http     Apache httpd 2.4.7 ((Ubuntu))
+|_http-title: GoldenEye Primary Admin Server
+|_http-server-header: Apache/2.4.7 (Ubuntu)
+55006/tcp open  ssl/pop3 Dovecot pop3d
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=localhost/organizationName=Dovecot mail server
+| Not valid before: 2018-04-24T03:23:52
+|_Not valid after:  2028-04-23T03:23:52
+|_pop3-capabilities: TOP AUTH-RESP-CODE SASL(PLAIN) UIDL USER RESP-CODES PIPELINING CAPA
+55007/tcp open  pop3     Dovecot pop3d
+|_pop3-capabilities: TOP SASL(PLAIN) STLS CAPA AUTH-RESP-CODE UIDL PIPELINING USER RESP-CODES
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=localhost/organizationName=Dovecot mail server
+| Not valid before: 2018-04-24T03:23:52
+|_Not valid after:  2028-04-23T03:23:52
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 995.09 seconds
+
+
+Q2: Use nmap to scan the network for all ports. How many ports are open?
+R2: 4
+
+I explored port 80 there is nothing for now I took a look at the source page and I went on the file 
+terminal.js there I saw that Boris was asking people to change their default password that he had 
+encode I decoded it on cyberchef
+
+Q4: Who needs to make sure they update their default password?
+R4: Boris
+
+Q5: Whats their password?
+R5: InvincibleHack3r
 
